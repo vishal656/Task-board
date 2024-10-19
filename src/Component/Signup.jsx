@@ -82,7 +82,7 @@ const Button = styled.button`
 
 const WelcomeText = styled.p`
   color: white;
-  font-size: 33px;
+  font-size: 34px;
   font-weight: 400;
 `;
 
