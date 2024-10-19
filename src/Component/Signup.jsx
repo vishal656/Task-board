@@ -94,6 +94,8 @@ const SubText = styled.p`
 
 const Signup = () => {
   const navigate = useNavigate();
+  console.log("abc",`${import.meta.env.VITE_API_KEY}/auth/signup`);
+
   const [signInfo, setSignInfo] = useState({
     name: "",
     email: "",
@@ -222,7 +224,7 @@ const Signup = () => {
             Register
           </Button>
           <p>Have an account ?</p>
-          <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={handleSubmit}>
+          <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={()=>navigate("/login")}>
             Log in
           </Button>
         </BlankSide>
