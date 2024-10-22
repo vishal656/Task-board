@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import codeSandbox from "../assets/image/codesandbox.png";
 import Database from "../assets/image/database.png";
 import Settings from "../assets/image/settings.png";
-import Logout from "../assets/image/logout.png";
+import Logout from "../assets/image/Logout.png";
 import Board from "../assets/image/layout.png";
 import Analytics from "./Analytics";
 import SettingComponent from "./Settings"
