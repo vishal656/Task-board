@@ -1,37 +1,99 @@
 import styled from "styled-components";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useState } from "react";
 import { handleError, handleSuccess } from "../utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash
+} from "@fortawesome/free-solid-svg-icons";
+import groupImage from "../assets/image/Group.png";
 import "react-toastify/dist/ReactToastify.css"; // Ensure you import the CSS
 
 const Container = styled.div`
-  width: 300px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
 `;
-const Input = styled.input`
-  text-align: left;
-  margin-bottom: 10px;
+
+const ImageSide = styled.div`
+  flex: 0.6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #17a2b8;
+  flex-direction: column;
+`;
+
+const StyledImage = styled.img`
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+`;
+
+const BlankSide = styled.div`
+  flex: 0.4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
   width: 100%;
+  margin-bottom: 20px;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 10px 40px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+`;
+
+const TogglePasswordButton = styled.span`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
 `;
 
 const Button = styled.button`
-  width: 103%;
+  width: 100%;
   padding: 10px;
-  background-color: #28a745;
+  background-color: #17a2b8;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 55px;
   cursor: pointer;
+`;
 
-  &:hover {
-    background-color: #218838;
-  }
+const WelcomeText = styled.p`
+  color: white;
+  font-size: 34px;
+  font-weight: 400;
+`;
+
+const SubText = styled.p`
+  color: white;
+  font-size: 19px;
+  margin-top: -30px;
 `;
 
 const Login = () => {
@@ -40,6 +102,7 @@ const Login = () => {
     email: "",
     password: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,7 +125,7 @@ const Login = () => {
         body: JSON.stringify(loginInfo)
       });
       let result = await response.json();
-      const { success, message,jwtToken,name,error } = result;
+      const { success, message, jwtToken, name, error } = result;
       if (success) {
         handleSuccess(message);
         localStorage.setItem("token", jwtToken);
@@ -70,45 +133,74 @@ const Login = () => {
         setTimeout(() => {
           navigate("/home");
         }, 1000);
-      }
-      else if(error) {
-      const details = error.details[0].message;
-      handleError(details);
-      }
-      else if(!success)
-      {
+      } else if (error) {
+        const details = error.details[0].message;
+        handleError(details);
+      } else if (!success) {
         handleError(message);
       }
     } catch (error) {
       handleError(error);
     }
   };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
   return (
     <>
       <Container>
-        <h3>Login</h3>
-        <label htmlFor="email">email:</label>
-        <Input
-          type="text"
-          id="email"
-          name="email"
-          autoFocus
-          onChange={handleChange}
-          value={loginInfo.email}
-        />
-        <label htmlFor="password">Password:</label>
-        <Input
-          type="text"
-          id="password"
-          name="password"
-          autoFocus
-          onChange={handleChange}
-          value={loginInfo.password}
-        />
-        <Button type="submit" onClick={handleSubmit}>
-          Submit
-        </Button>
-        <p>Dont have an Account? <Link to="/signup">Signup</Link></p>
+        <ImageSide>
+          <StyledImage src={groupImage} alt="Group" />
+          <WelcomeText>Welcome aboard my friend</WelcomeText>
+          <SubText>just a couple of clicks and we start</SubText>
+        </ImageSide>
+        <BlankSide>
+          <p
+            style={{
+              fontSize: "33px",
+              fontWeight: "600px",
+              color: "#343434",
+              fontFamily: "sans-serif"
+            }}
+          >
+            Login
+          </p>
+          <InputWrapper>
+            <Icon icon={faEnvelope} />
+            <Input
+              type="text"
+              name="email"
+              placeholder="Email"
+              autoFocus
+              onChange={handleChange}
+              value={loginInfo.email}
+            />
+          </InputWrapper>
+          <InputWrapper>
+          <Icon icon={faLock} />
+          <Input
+              type={showPassword ? "text" : "password"}
+              id="password"
+               name="password"
+              placeholder="Password"
+              autoFocus
+              onChange={handleChange}
+              value={loginInfo.password}
+            />
+            <TogglePasswordButton onClick={toggleShowPassword}>
+              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+            </TogglePasswordButton>
+          </InputWrapper>
+
+          <Button type="submit" onClick={handleSubmit}>
+            Submit
+          </Button>
+          <p style={{fontWeight:"400",fontSize:"18px",color:"#828282",fontFamily:"serif"}}>Have an account ?</p>
+          <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={()=>navigate("/signup")}>
+           Register
+          </Button>
+        </BlankSide>
       </Container>
       <ToastContainer /> {/* Ensure ToastContainer is included */}
     </>

@@ -202,7 +202,7 @@ const Signup = () => {
               value={signInfo.password}
             />
             <TogglePasswordButton onClick={toggleShowPassword}>
-              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={showPassword ? faEye :faEyeSlash } />
             </TogglePasswordButton>
           </InputWrapper>
 
@@ -216,14 +216,14 @@ const Signup = () => {
               value={signInfo.confirmPassword}
             />
             <TogglePasswordButton onClick={toggleShowConfirmPassword}>
-              <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={showConfirmPassword ? faEye  : faEyeSlash} />
             </TogglePasswordButton>
           </InputWrapper>
 
           <Button type="submit" onClick={handleSubmit}>
             Register
           </Button>
-          <p>Have an account ?</p>
+          <p style={{fontWeight:"400",fontSize:"18px",color:"#828282",fontFamily:"serif"}}>Have an account ?</p>
           <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={()=>navigate("/login")}>
             Log in
           </Button>
