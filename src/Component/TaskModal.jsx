@@ -284,7 +284,6 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         dueDate: dueDate,
         checklist: checklist.filter(item=>item.completed === true),
       };
-      console.log("task",taskData);
       try {
         const url = `${import.meta.env.VITE_API_KEY}/auth/tasks`;
         // const url = `http://localhost:3000/auth/tasks`;

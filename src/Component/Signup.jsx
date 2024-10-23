@@ -94,7 +94,7 @@ const SubText = styled.p`
 
 const Signup = () => {
   const navigate = useNavigate();
-  console.log("abc",`${import.meta.env.VITE_API_KEY}/auth/signup`);
+  //console.log("abc",`${import.meta.env.VITE_API_KEY}/auth/signup`);
 
   const [signInfo, setSignInfo] = useState({
     name: "",

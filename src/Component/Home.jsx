@@ -168,7 +168,6 @@ const Home = () => {
       let result = await response.json();
       const { success, message, error } = result;
       if (success) {
-       console.log("response",result);
        setTasks(result.tasks);
       } else if (error) {
         handleError(error.details ? error.details[0].message : error.message);

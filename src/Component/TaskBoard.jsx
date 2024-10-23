@@ -9,7 +9,6 @@ const Board = styled.div`
 `;
 
 const TaskBoard = ({ tasks, filter ,fetchTasksCards}) => {
-  console.log("props", tasks);
 
   const parseDueDate = (dueDate) => {
     return new Date(dueDate); // Use the date directly as it's already in ISO format
@@ -39,7 +38,6 @@ const TaskBoard = ({ tasks, filter ,fetchTasksCards}) => {
   };
 
   const filteredTasks = filterTasks(tasks);
-  console.log("Filtered Tasks", filteredTasks);
 
   // Filter tasks based on their status
   const backlogTasks = filteredTasks.filter((task) => task.status === "Backlog");

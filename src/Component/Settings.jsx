@@ -59,6 +59,7 @@ const Button = styled.button`
 `;
 
 const Settings = ({loggedInUser,loggedInEmail}) => {
+  console.log("Settings", loggedInUser, loggedInEmail);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     name: "",
