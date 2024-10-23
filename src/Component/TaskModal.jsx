@@ -151,7 +151,6 @@ const ErrorMessage = styled.span`
   display: block;
 `;
 
-// Custom Button Styled Component
 const DueDateButton = styled.button`
   padding: 10px 20px;
   border: 1px solid #ccc;
@@ -169,7 +168,6 @@ const DateWrapper = styled.div`
   display: inline-block; /* Ensure the button and calendar stay inline */
 `;
 
-// Styled component for positioning the calendar
 const CalendarContainer = styled.div`
 position: absolute;
     top: -238px;
@@ -188,7 +186,6 @@ const SelectDropdown = styled.select`
   cursor: pointer;
 `;
 
- // Sample data for assignees
  const assigneeOptions = [
   { id: 1, email: "akashgupta@gmail.com", initials: "AK" },
   { id: 2, email: "johndoe@example.com", initials: "JD" },
@@ -196,7 +193,7 @@ const SelectDropdown = styled.select`
   { id: 4, email: "alicesmith@example.com", initials: "AS" },
 ];
 
-const TaskModal = ({ onClose, onSave }) => {
+const TaskModal = ({ onClose, fetchTasksCards }) => {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState('MODERATE_PRIORITY');
   const [assignee, setAssignee] = useState('');
@@ -219,7 +216,6 @@ const TaskModal = ({ onClose, onSave }) => {
       checklist: ''
     };
 
-    // Title validation
   if (!title.trim()) {
     newErrors.title = 'Title is required';
     isValid = false;
@@ -228,7 +224,6 @@ const TaskModal = ({ onClose, onSave }) => {
     isValid = false;
   }
 
-  // Checklist validation: Ensure there's at least one checklist item
   if (checklist.length === 0) {
     newErrors.checklist = 'At least one checklist item is required';
     isValid = false;
@@ -239,7 +234,6 @@ const TaskModal = ({ onClose, onSave }) => {
       isValid = false;
     }
 
-    // Ensure at least one item is checked
     const hasCheckedItem = checklist.some(item => item.completed);
     if (!hasCheckedItem) {
       newErrors.checklist = 'At least one checklist item is required';
@@ -251,7 +245,6 @@ const TaskModal = ({ onClose, onSave }) => {
     return isValid;
   };
 
-// Calculate the number of checked checklist items
 const getCheckedCount = () => checklist.filter(item => item.completed).length;
 
   const handleAddChecklistItem = () => {
@@ -265,7 +258,6 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
 
   const handleRemoveChecklistItem = (id) => {
     setChecklist(checklist.filter(item => item.id !== id));
-    // Clear checklist error when removing items
     setErrors(prev => ({ ...prev, checklist: '' }));
   };
 
@@ -279,25 +271,53 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
     setChecklist(checklist.map(item =>
       item.id === id ? { ...item, text } : item
     ));
-    // Clear checklist error when editing
     setErrors(prev => ({ ...prev, checklist: '' }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (validateForm()) {
+      const taskData = {
+        title: title,
+        status:"To Do",
+        priority: priority,
+        assignee: assignee,
+        dueDate: dueDate,
+        checklist: checklist.filter(item=>item.completed === true),
+      };
+      console.log("task",taskData);
       try {
-        console.log("Data", title, priority, assignee, dueDate, checklist);
-        handleSuccess('Task created successfully!');
-        onClose();
+        // const url = `${import.meta.env.VITE_API_KEY}/auth/update`;
+        const url = `http://localhost:3000/auth/tasks`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem("token"),
+          },
+          body: JSON.stringify(taskData),
+        });
+
+        let result = await response.json();
+        const { success, message, error } = result;
+        if (success) {
+          handleSuccess(message);
+          fetchTasksCards();
+         onClose();
+        } else if (error) {
+          handleError(error.details ? error.details[0].message : error.message);
+        }
+        else{
+          handleError(message);
+        }
       } catch (error) {
-        handleError('Failed to create task. Please try again.');
+        handleError(error);
       }
     }
   };
 
   const handleDateChange = (date) => {
     setDueDate(date);
-    setShowCalendar(false); // Hide the calendar after selecting a date
+    setShowCalendar(false);
   };
 
   return (

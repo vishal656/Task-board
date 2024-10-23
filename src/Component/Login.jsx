@@ -125,11 +125,12 @@ const Login = () => {
         body: JSON.stringify(loginInfo)
       });
       let result = await response.json();
-      const { success, message, jwtToken, name, error } = result;
+      const { success, message, jwtToken, name,email, error } = result;
       if (success) {
         handleSuccess(message);
         localStorage.setItem("token", jwtToken);
         localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
         setTimeout(() => {
           navigate("/home");
         }, 1000);

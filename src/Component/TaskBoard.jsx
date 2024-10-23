@@ -8,15 +8,11 @@ const Board = styled.div`
   width: 100%;
 `;
 
-const TaskBoard = ({ tasks, filter }) => {
+const TaskBoard = ({ tasks, filter ,fetchTasksCards}) => {
+  console.log("props", tasks);
 
   const parseDueDate = (dueDate) => {
-    const dateParts = dueDate.split(" ");
-    const month = dateParts[0];
-    const day = parseInt(dateParts[1]);
-    const currentYear = new Date().getFullYear();
-    const formattedDate = new Date(`${month} ${day}, ${currentYear}`);
-    return formattedDate;
+    return new Date(dueDate); // Use the date directly as it's already in ISO format
   };
 
   const filterTasks = (tasks) => {
@@ -43,16 +39,18 @@ const TaskBoard = ({ tasks, filter }) => {
   };
 
   const filteredTasks = filterTasks(tasks);
+  console.log("Filtered Tasks", filteredTasks);
 
-  const backlogTasks = filteredTasks.filter((task) => task.status === "backlog");
-  const todoTasks = filteredTasks.filter((task) => task.status === "to-do");
-  const inProgressTasks = filteredTasks.filter((task) => task.status === "in-progress");
-  const doneTasks = filteredTasks.filter((task) => task.status === "done");
+  // Filter tasks based on their status
+  const backlogTasks = filteredTasks.filter((task) => task.status === "Backlog");
+  const todoTasks = filteredTasks.filter((task) => task.status === "To Do");
+  const inProgressTasks = filteredTasks.filter((task) => task.status === "In Progress");
+  const doneTasks = filteredTasks.filter((task) => task.status === "Done");
 
   return (
     <Board>
-      <TaskColumn title="Backlog" tasks={backlogTasks} />
-      <TaskColumn title="To Do" tasks={todoTasks} />
+      <TaskColumn title="Backlog" tasks={backlogTasks}/>
+      <TaskColumn title="To Do" tasks={todoTasks}  fetchTasksCards={fetchTasksCards}/>
       <TaskColumn title="In Progress" tasks={inProgressTasks} />
       <TaskColumn title="Done" tasks={doneTasks} />
     </Board>

@@ -31,13 +31,13 @@ const AddImage = styled.img`
     top: 30px;
     cursor: pointer;
 `;
-const Column = ({ title, tasks }) => {
+const Column = ({ title, tasks, fetchTasksCards }) => {
   const [addPopup,setAddPopup] = useState(false);
   return (
     <ColumnContainer>
       <ColumnTitle>{title}</ColumnTitle>
       {tasks.length === 0 ? (
-        <p>No tasks</p>
+        <p>No tasks available</p>
       ) : (
         tasks.map((task, index) => (
           <TaskCard key={index} task={task} />
@@ -50,7 +50,7 @@ const Column = ({ title, tasks }) => {
       )}
       <AddImage src={CollapseImage} alt="" style={{right:"10px"}}/>
           {
-            addPopup ? <TaskModal onClose={()=>setAddPopup(false)}/> : null
+            addPopup ? <TaskModal onClose={()=>setAddPopup(false)} fetchTasksCards={fetchTasksCards}/> : null
           }
     </ColumnContainer>
   );

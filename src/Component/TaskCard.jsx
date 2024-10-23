@@ -119,10 +119,25 @@ const TaskCard = ({ task }) => {
   const completedTasks = checklist.filter((item) => item.completed).length;
   const totalTasks = checklist.length;
 
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const options = { month: 'short', day: 'numeric' };
+    const formattedDate = date.toLocaleString('en-US', options);
+
+    // Get the day to append the ordinal suffix
+    const day = date.getDate();
+    let suffix = 'th';
+    if (day === 1 || day === 21 || day === 31) suffix = 'st';
+    else if (day === 2 || day === 22) suffix = 'nd';
+    else if (day === 3 || day === 23) suffix = 'rd';
+
+    return `${formattedDate}${suffix}`;
+  };
+
   return (
     <CardContainer>
       <TaskHeader>
-        <Priority>{task.priority.toUpperCase()} PRIORITY</Priority>
+        <Priority>{task.priority.toUpperCase()}</Priority>
         <FontAwesomeIcon icon={faEllipsisH} />
       </TaskHeader>
       <TaskTitle>{task.title}</TaskTitle>
@@ -154,7 +169,7 @@ const TaskCard = ({ task }) => {
         </ChecklistContainer>
       )}
 
-      <DueDate>{task.dueDate}</DueDate>
+      <DueDate>{formatDate(task.dueDate)}</DueDate>
 
       <StatusContainer>
         <StatusButton>PROGRESS</StatusButton>

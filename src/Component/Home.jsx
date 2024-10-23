@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import codeSandbox from "../assets/image/codesandbox.png";
 import Database from "../assets/image/database.png";
 import Settings from "../assets/image/settings.png";
@@ -12,6 +11,7 @@ import Analytics from "./Analytics";
 import SettingComponent from "./Settings"
 import TaskBoard from "./TaskBoard";
 import LogoutModal from "./LogoutModal";
+import { handleError, handleSuccess } from "../utils";
 
 // Styled components
 const Container = styled.div`
@@ -108,48 +108,82 @@ const SideBarContent = styled.p`
 `;
 
 // Sample Data
-const task = [
-  {
-    title: "Hero section",
-    priority: "High",
-    dueDate: "oct 22th",
-    status: "to-do",
-    checklist: [
-      { text: "Task to be done", completed: true },
-      { text: "Task to be done", completed: false },
-      {
-        text: "Task to be done ede lorem Ipsum is a Dummy text",
-        completed: false
-      }
-    ]
-  },
-  {
-    title: "Zero section",
-    priority: "Low",
-    dueDate: "oct 10th",
-    status: "backlog",
-    checklist: [
-      { text: "Task to be done", completed: true },
-      { text: "Task to be done", completed: false },
-      {
-        text: "Task to be done ede lorem Ipsum is a Dummy text",
-        completed: false
-      }
-    ]
-  }
-];
+// const task = [
+//   {
+//     title: "Hero section",
+//     priority: "High",
+//     dueDate: "oct 22th",
+//     status: "to-do",
+//     checklist: [
+//       { text: "Task to be done", completed: true },
+//       { text: "Task to be done", completed: false },
+//       {
+//         text: "Task to be done ede lorem Ipsum is a Dummy text",
+//         completed: false
+//       }
+//     ]
+//   },
+//   {
+//     title: "Zero section",
+//     priority: "Low",
+//     dueDate: "oct 10th",
+//     status: "backlog",
+//     checklist: [
+//       { text: "Task to be done", completed: true },
+//       { text: "Task to be done", completed: false },
+//       {
+//         text: "Task to be done ede lorem Ipsum is a Dummy text",
+//         completed: false
+//       }
+//     ]
+//   }
+// ];
 
 // Home component
 const Home = () => {
   const [loggedInUser, setLoggedInUser] = useState("");
+  const [loggedInEmail, setLoggedInEmail] = useState("");
   const [selectedPage, setSelectedPage] = useState("Board"); // Default to Board
 
-  const [tasks, setTasks] = useState(task);
+  const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("this week");
   const [logoutPopup, setLogoutPopup] = useState(false);
   useEffect(() => {
     setLoggedInUser(localStorage.getItem("name"));
+    setLoggedInEmail(localStorage.getItem("email"));
   }, []);
+
+  const fetchTasksCards  = async () => {
+    try {
+      // const url = `${import.meta.env.VITE_API_KEY}/auth/update`;
+      const url = `http://localhost:3000/auth/tasks`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+
+      let result = await response.json();
+      const { success, message, error } = result;
+      if (success) {
+       console.log("response",result);
+       setTasks(result.tasks);
+      } else if (error) {
+        handleError(error.details ? error.details[0].message : error.message);
+      }
+      else{
+        handleError(message);
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  useEffect(()=>{
+    fetchTasksCards();
+  },[])
 
   const handleLogout = () => {
     setLogoutPopup(true);
@@ -210,14 +244,14 @@ const Home = () => {
             </div>
           </Header>
           <Content>
-            <TaskBoard tasks={tasks} filter={filter} />
+            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards}/>
           </Content>
         </>
       );
     } else if (selectedPage === "Analytics") {
       return <Analytics/>
     } else if (selectedPage === "Setting") {
-      return <SettingComponent/>
+      return <SettingComponent loggedInUser={loggedInUser} loggedInEmail={loggedInEmail}/>
     }
   };
 
