@@ -155,8 +155,8 @@ const Home = () => {
 
   const fetchTasksCards  = async () => {
     try {
-      // const url = `${import.meta.env.VITE_API_KEY}/auth/update`;
-      const url = `http://localhost:3000/auth/tasks`;
+      const url = `${import.meta.env.VITE_API_KEY}/auth/tasks`;
+      // const url = `http://localhost:3000/auth/tasks`;
       const response = await fetch(url, {
         method: "GET",
         headers: {

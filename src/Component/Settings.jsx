@@ -99,8 +99,8 @@ const Settings = ({loggedInUser,loggedInEmail}) => {
     }
 
     try {
-      // const url = `${import.meta.env.VITE_API_KEY}/auth/update`;
-      const url = `http://localhost:3000/auth/update`;
+      const url = `${import.meta.env.VITE_API_KEY}/auth/update`;
+      // const url = `http://localhost:3000/auth/update`;
       const response = await fetch(url, {
         method: "PUT",
         headers: {
