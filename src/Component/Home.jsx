@@ -145,7 +145,7 @@ const Home = () => {
   const [loggedInUser, setLoggedInUser] = useState("");
   const [loggedInEmail, setLoggedInEmail] = useState("");
   const [selectedPage, setSelectedPage] = useState("Board"); // Default to Board
-
+  const [refresh,setRefresh] = useState("");
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("this week");
   const [logoutPopup, setLogoutPopup] = useState(false);
@@ -183,7 +183,7 @@ const Home = () => {
 
   useEffect(()=>{
     fetchTasksCards();
-  },[])
+  },[refresh])
 
   const handleLogout = () => {
     setLogoutPopup(true);
@@ -254,10 +254,6 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTasksCards();
-  }, []);
-
   const renderContent = () => {
     if (selectedPage === "Board") {
       return (
@@ -287,7 +283,7 @@ const Home = () => {
             </div>
           </Header>
           <Content>
-            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards} updateTaskStatus={handleStatusChange}/>
+            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards} updateTaskStatus={handleStatusChange} setRefresh={setRefresh}/>
           </Content>
         </>
       );

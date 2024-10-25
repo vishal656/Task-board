@@ -4,6 +4,7 @@ import { handleError, handleSuccess } from "../utils";
 import DeleteIcon from "../assets/image/Delete.png"
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { v4 as uuidv4 } from 'uuid';
 // Styled Components
 const ModalBackground = styled.div`
   position: fixed;
@@ -185,7 +186,7 @@ const SelectDropdown = styled.select`
   background-color: white;
   cursor: pointer;
 `;
-const EditTaskCard = ({onClose,fetchTasksCards,modalData}) => {
+const EditTaskCard = ({onClose,fetchTasksCards,modalData,setRefresh}) => {
   const [title, setTitle] = useState(modalData.title ||'');
   const [priority, setPriority] = useState(modalData.priority || 'MODERATE_PRIORITY');
   const [assignee, setAssignee] = useState(modalData.assignee || '');
@@ -300,7 +301,8 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         const { success, message, error } = result;
         if (success) {
           handleSuccess(message);
-          fetchTasksCards();
+         // fetchTasksCards();
+         setRefresh(uuidv4());
          onClose();
         } else if (error) {
           handleError(error.details ? error.details[0].message : error.message);

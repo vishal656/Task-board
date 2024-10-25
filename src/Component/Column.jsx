@@ -31,7 +31,7 @@ const AddImage = styled.img`
     top: 30px;
     cursor: pointer;
 `;
-const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus }) => {
+const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus,setRefresh }) => {
   const [addPopup,setAddPopup] = useState(false);
   return (
     <ColumnContainer>
@@ -40,7 +40,7 @@ const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus }) => {
         <p>No tasks available</p>
       ) : (
         tasks.map((task, index) => (
-          <TaskCard key={index} task={task} fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus}/>
+          <TaskCard key={index} task={task} fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus} setRefresh={setRefresh}/>
         ))
       )}
       {title === 'To Do' && (

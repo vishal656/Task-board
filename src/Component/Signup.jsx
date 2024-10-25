@@ -3,9 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useState } from "react";
 import { handleError, handleSuccess } from "../utils";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import groupImage from '../assets/image/Group.png';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faEnvelope,
+  faLock,
+  faEye,
+  faEyeSlash
+} from "@fortawesome/free-solid-svg-icons";
+import groupImage from "../assets/image/Group.png";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -20,14 +26,26 @@ const ImageSide = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #17A2B8;
+  background-color: #17a2b8;
   flex-direction: column;
 `;
 
 const StyledImage = styled.img`
-  max-width: 80%;
-  max-height: 80%;
-  object-fit: contain;
+  position: absolute;
+  width: 260.86px;
+  height: 301.82px;
+`;
+
+const CircleWrapper = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background-color: #317f8b;
+  border-radius: 50%;
+  width: 300.58px;
+  height: 245.58px;
+  padding-top: 4.2rem;
+  padding-right: 15px;
 `;
 
 const BlankSide = styled.div`
@@ -73,7 +91,7 @@ const TogglePasswordButton = styled.span`
 const Button = styled.button`
   width: 100%;
   padding: 10px;
-  background-color: #17A2B8;
+  background-color: #17a2b8;
   color: white;
   border: none;
   border-radius: 55px;
@@ -84,6 +102,7 @@ const WelcomeText = styled.p`
   color: white;
   font-size: 34px;
   font-weight: 400;
+  padding-top: 3rem;
 `;
 
 const SubText = styled.p`
@@ -162,12 +181,23 @@ const Signup = () => {
     <>
       <Container>
         <ImageSide>
-          <StyledImage src={groupImage} alt="Group" />
+          <CircleWrapper>
+            <StyledImage src={groupImage} alt="Group" />
+          </CircleWrapper>
           <WelcomeText>Welcome aboard my friend</WelcomeText>
-  <SubText>just a couple of clicks and we start</SubText>
+          <SubText>just a couple of clicks and we start</SubText>
         </ImageSide>
         <BlankSide>
-          <p style={{fontSize:"33px",fontWeight:"600px", color:"#343434",fontFamily:"sans-serif"}}>Register</p>
+          <p
+            style={{
+              fontSize: "33px",
+              fontWeight: "600px",
+              color: "#343434",
+              fontFamily: "sans-serif"
+            }}
+          >
+            Register
+          </p>
 
           <InputWrapper>
             <Icon icon={faUser} />
@@ -202,7 +232,7 @@ const Signup = () => {
               value={signInfo.password}
             />
             <TogglePasswordButton onClick={toggleShowPassword}>
-              <FontAwesomeIcon icon={showPassword ? faEye :faEyeSlash } />
+              <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
             </TogglePasswordButton>
           </InputWrapper>
 
@@ -216,15 +246,34 @@ const Signup = () => {
               value={signInfo.confirmPassword}
             />
             <TogglePasswordButton onClick={toggleShowConfirmPassword}>
-              <FontAwesomeIcon icon={showConfirmPassword ? faEye  : faEyeSlash} />
+              <FontAwesomeIcon
+                icon={showConfirmPassword ? faEye : faEyeSlash}
+              />
             </TogglePasswordButton>
           </InputWrapper>
 
           <Button type="submit" onClick={handleSubmit}>
             Register
           </Button>
-          <p style={{fontWeight:"400",fontSize:"18px",color:"#828282",fontFamily:"serif"}}>Have an account ?</p>
-          <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={()=>navigate("/login")}>
+          <p
+            style={{
+              fontWeight: "400",
+              fontSize: "18px",
+              color: "#828282",
+              fontFamily: "serif"
+            }}
+          >
+            Have an account ?
+          </p>
+          <Button
+            style={{
+              backgroundColor: "white",
+              color: "#17A2B8",
+              border: "1px solid #17A2B8"
+            }}
+            type="submit"
+            onClick={() => navigate("/login")}
+          >
             Log in
           </Button>
         </BlankSide>

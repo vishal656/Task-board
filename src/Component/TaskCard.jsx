@@ -72,14 +72,20 @@ const Checkbox = styled.input`
 `;
 
 const DueDate = styled.div`
-  background-color: ${(props) => (props.isOverdue ? "#CF3636" : props.status ==="Done" ? "#63C05B":"#DBDBDB")};
+  background-color: ${(props) =>
+    props.status === "Done"
+      ? "#63C05B"
+      : props.isOverdue
+      ? "#CF3636"
+      : "#DBDBDB"};
   padding: 5px 10px;
   border-radius: 8px;
   font-size: 8px;
   color: ${(props) => (props.isOverdue ? "#FFFFFF" : "#5A5A5A")};
   display: inline-block;
   width: 31px;
-    height: 13px;
+  height: 13px;
+  text-align:center;
 `;
 
 const StatusContainer = styled.div`
@@ -139,7 +145,7 @@ const ColorItem = styled.div`
     border-radius: 50%;
 `;
 
-const TaskCard = ({ task, fetchTasksCards,updateTaskStatus }) => {
+const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
   const [checklist, setChecklist] = useState(task.checklist);
   const [isChecklistVisible, setIsChecklistVisible] = useState(true);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -174,7 +180,7 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus }) => {
     return `${formattedDate}${suffix}`;
   };
 
-  const isOverdue = new Date(task.dueDate) < new Date();
+  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== "Done";
 
   const handleStatusChange = (taskId, newStatus) => {
     updateTaskStatus(taskId, newStatus);
@@ -186,6 +192,8 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus }) => {
           onClose={() => setIsEditVisible(false)}
           fetchTasksCards={fetchTasksCards}
           modalData={modalData}
+          updateTaskStatus={updateTaskStatus}
+          setRefresh={setRefresh}
         />
       ) : null}
 

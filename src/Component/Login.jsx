@@ -29,9 +29,21 @@ const ImageSide = styled.div`
 `;
 
 const StyledImage = styled.img`
-  max-width: 80%;
-  max-height: 80%;
-  object-fit: contain;
+  position: absolute;
+  width: 260.86px;
+  height: 301.82px;
+`;
+
+const CircleWrapper = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background-color: #317f8b;
+  border-radius: 50%;
+  width: 300.58px;
+  height: 245.58px;
+  padding-top: 4.2rem;
+  padding-right: 15px;
 `;
 
 const BlankSide = styled.div`
@@ -88,6 +100,7 @@ const WelcomeText = styled.p`
   color: white;
   font-size: 34px;
   font-weight: 400;
+  padding-top: 3rem;
 `;
 
 const SubText = styled.p`
@@ -125,7 +138,7 @@ const Login = () => {
         body: JSON.stringify(loginInfo)
       });
       let result = await response.json();
-      const { success, message, jwtToken, name,email, error } = result;
+      const { success, message, jwtToken, name, email, error } = result;
       if (success) {
         handleSuccess(message);
         localStorage.setItem("token", jwtToken);
@@ -152,7 +165,9 @@ const Login = () => {
     <>
       <Container>
         <ImageSide>
-          <StyledImage src={groupImage} alt="Group" />
+          <CircleWrapper>
+            <StyledImage src={groupImage} alt="Group" />
+          </CircleWrapper>
           <WelcomeText>Welcome aboard my friend</WelcomeText>
           <SubText>just a couple of clicks and we start</SubText>
         </ImageSide>
@@ -179,11 +194,11 @@ const Login = () => {
             />
           </InputWrapper>
           <InputWrapper>
-          <Icon icon={faLock} />
-          <Input
+            <Icon icon={faLock} />
+            <Input
               type={showPassword ? "text" : "password"}
               id="password"
-               name="password"
+              name="password"
               placeholder="Password"
               autoFocus
               onChange={handleChange}
@@ -197,9 +212,26 @@ const Login = () => {
           <Button type="submit" onClick={handleSubmit}>
             Submit
           </Button>
-          <p style={{fontWeight:"400",fontSize:"18px",color:"#828282",fontFamily:"serif"}}>Have an account ?</p>
-          <Button style={{backgroundColor:"white",color:"#17A2B8",border:"1px solid #17A2B8"}} type="submit" onClick={()=>navigate("/signup")}>
-           Register
+          <p
+            style={{
+              fontWeight: "400",
+              fontSize: "18px",
+              color: "#828282",
+              fontFamily: "serif"
+            }}
+          >
+            Have an account ?
+          </p>
+          <Button
+            style={{
+              backgroundColor: "white",
+              color: "#17A2B8",
+              border: "1px solid #17A2B8"
+            }}
+            type="submit"
+            onClick={() => navigate("/signup")}
+          >
+            Register
           </Button>
         </BlankSide>
       </Container>
