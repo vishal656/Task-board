@@ -185,14 +185,21 @@ const SelectDropdown = styled.select`
   background-color: white;
   cursor: pointer;
 `;
-
-const TaskModal = ({ onClose, fetchTasksCards }) => {
-  const [title, setTitle] = useState('');
-  const [priority, setPriority] = useState('MODERATE_PRIORITY');
-  const [assignee, setAssignee] = useState('');
-  const [dueDate, setDueDate] = useState(null);
+const EditTaskCard = ({onClose,fetchTasksCards,modalData}) => {
+  const [title, setTitle] = useState(modalData.title ||'');
+  const [priority, setPriority] = useState(modalData.priority || 'MODERATE_PRIORITY');
+  const [assignee, setAssignee] = useState(modalData.assignee || '');
+  const [dueDate, setDueDate] = useState(modalData.dueDate ? new Date(modalData.dueDate) : null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [checklist, setChecklist] = useState([]);
+  const [checklist, setChecklist] = useState(
+    (modalData.checklist || []).map(item => ({
+      ...item,
+      id: item._id
+    }))
+  );
+
+  console.log("checklist", checklist,modalData);
+
   const [users,setUsers] = useState([]);
   // Validation states
   const [errors, setErrors] = useState({
@@ -271,17 +278,17 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
     if (validateForm()) {
       const taskData = {
         title: title,
-        status:"To Do",
+        status: modalData.status,
         priority: priority,
         assignee: assignee,
         dueDate: dueDate ? dueDate :null,
         checklist: checklist.filter(item=>item.completed === true),
       };
       try {
-        const url = `${import.meta.env.VITE_API_KEY}/auth/tasks`;
-        // const url = `http://localhost:3000/auth/tasks`;
+        const url = `${import.meta.env.VITE_API_KEY}/auth/tasks/${modalData._id}`;
+        // const url = `http://localhost:3000/auth/tasks/${modalData._id}`;
         const response = await fetch(url, {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: localStorage.getItem("token"),
@@ -452,7 +459,7 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
                 onChange={(e) => handleChecklistTextChange(item.id, e.target.value)}
                 error={!!errors.checklist}
               />
-              <DeleteButton onClick={() => handleRemoveChecklistItem(item.id)}>
+              <DeleteButton onClick={() => {console.log("id",item.id);handleRemoveChecklistItem(item.id)}}>
                 <img src={DeleteIcon} alt=''/>
               </DeleteButton>
             </ChecklistItem>
@@ -475,8 +482,8 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         <DatePicker
           selected={dueDate}
           onChange={handleDateChange}
-          inline
           onClickOutside={() => setShowCalendar(false)}
+          inline
         />
         </CalendarContainer>
       )}
@@ -497,4 +504,5 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
   );
 };
 
-export default TaskModal;
+
+export default EditTaskCard

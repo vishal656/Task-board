@@ -5,6 +5,7 @@ import styled from "styled-components";
 import codeSandbox from "../assets/image/codesandbox.png";
 import Database from "../assets/image/database.png";
 import Settings from "../assets/image/settings.png";
+import AddPeople from "../assets/image/AddPeople.png";
 import Logout from "../assets/image/Logout.png";
 import Board from "../assets/image/layout.png";
 import Analytics from "./Analytics";
@@ -199,7 +200,6 @@ const Home = () => {
     const month = date.toLocaleString("default", { month: "short" });
     const year = date.getFullYear();
 
-    // Determine the correct suffix for the day
     const daySuffix = (day) => {
       if (day > 3 && day < 21) return "th"; // catch 11th, 12th, 13th
       switch (day % 10) {
@@ -217,6 +217,47 @@ const Home = () => {
     return `${day}${daySuffix(day)} ${month}, ${year}`;
   }
 
+  const updateTaskStatusInBackend = async (taskId, newStatus) => {
+    try {
+      const url = `${import.meta.env.VITE_API_KEY}/auth/tasks/${taskId}/status`;
+      // const url = `http://localhost:3000/auth/tasks/${taskId}/status`;
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        return result.task; // return the updated task
+      } else {
+        handleError(result.message);
+        return null; // return null if there's an error
+      }
+    } catch (error) {
+      handleError(error);
+      return null;
+    }
+  };
+
+  const handleStatusChange = async (taskId, newStatus) => {
+    const updatedTask = await updateTaskStatusInBackend(taskId, newStatus);
+    if (updatedTask) {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task._id === updatedTask._id ? updatedTask : task
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchTasksCards();
+  }, []);
+
   const renderContent = () => {
     if (selectedPage === "Board") {
       return (
@@ -230,7 +271,10 @@ const Home = () => {
             </div>
           </Header>
           <Header style={{ padding: "0px 10px 20px" }}>
+          <div style={{display:"flex",gap:"40px"}}>
             <div>Board</div>{" "}
+            <img src={AddPeople} alt="" />
+            </div>
             <div>
               <p>
                 {" "}
@@ -243,7 +287,7 @@ const Home = () => {
             </div>
           </Header>
           <Content>
-            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards}/>
+            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards} updateTaskStatus={handleStatusChange}/>
           </Content>
         </>
       );

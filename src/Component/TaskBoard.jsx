@@ -8,7 +8,7 @@ const Board = styled.div`
   width: 100%;
 `;
 
-const TaskBoard = ({ tasks, filter ,fetchTasksCards}) => {
+const TaskBoard = ({ tasks, filter ,fetchTasksCards,updateTaskStatus}) => {
 
   const parseDueDate = (dueDate) => {
     return new Date(dueDate); // Use the date directly as it's already in ISO format
@@ -47,10 +47,10 @@ const TaskBoard = ({ tasks, filter ,fetchTasksCards}) => {
 
   return (
     <Board>
-      <TaskColumn title="Backlog" tasks={backlogTasks}/>
-      <TaskColumn title="To Do" tasks={todoTasks}  fetchTasksCards={fetchTasksCards}/>
-      <TaskColumn title="In Progress" tasks={inProgressTasks} />
-      <TaskColumn title="Done" tasks={doneTasks} />
+      <TaskColumn title="Backlog" tasks={backlogTasks} updateTaskStatus={updateTaskStatus}/>
+      <TaskColumn title="To Do" tasks={todoTasks}  fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus}/>
+      <TaskColumn title="In Progress" tasks={inProgressTasks} updateTaskStatus={updateTaskStatus} />
+      <TaskColumn title="Done" tasks={doneTasks} updateTaskStatus={updateTaskStatus}/>
     </Board>
   );
 };
