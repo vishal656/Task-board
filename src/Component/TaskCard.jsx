@@ -78,13 +78,13 @@ const DueDate = styled.div`
       : props.isOverdue
       ? "#CF3636"
       : "#DBDBDB"};
-  padding: 5px 10px;
+  padding: 5px 15px;
   border-radius: 8px;
   font-size: 8px;
   color: ${(props) => (props.isOverdue ? "#FFFFFF" : "#5A5A5A")};
   display: inline-block;
   width: 31px;
-  height: 13px;
+  height: 12px;
   text-align:center;
 `;
 

@@ -1,9 +1,11 @@
-import React, { useState,useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import { handleError, handleSuccess } from "../utils";
-import DeleteIcon from "../assets/image/Delete.png"
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DeleteIcon from "../assets/image/Delete.png";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { FaAngleDown } from "react-icons/fa";
+
 // Styled Components
 const ModalBackground = styled.div`
   position: fixed;
@@ -60,17 +62,39 @@ const Input = styled.input`
 
 const PriorityGroup = styled.div`
   display: flex;
-  gap: 16px;
+  gap: 25px;
 `;
 
 const PriorityButton = styled.label`
   display: flex;
   align-items: center;
-  gap: 8px;
+  padding: 10px 8px 8px 8px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  gap: 5px;
+  &:hover {
+    background-color: #eeecec;
+    transform: translateY(-2px);
+  }
+  input[type="radio"] {
+    accent-color: ${({ status }) =>
+      status === "HIGH_PRIORITY"
+        ? "#FF2473"
+        : status === "MODERATE_PRIORITY"
+        ? "#18B0FF"
+        : "#63C05B"};
+  }
 
   input {
     margin-right: 4px;
+  }
+  span {
+    font-size: 14px;
+    color: #767575;
+    font-weight: 500;
   }
 `;
 
@@ -116,7 +140,7 @@ const AddNewButton = styled.button`
   background: none;
   cursor: pointer;
   font-weight: 500;
-text-align:left;
+  text-align: left;
   &:hover {
     color: #008080;
   }
@@ -133,14 +157,14 @@ const Button = styled.button`
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  background-color: ${(props) => (props.primary ? '#00a8a8' : '#fff')};
-  color: ${(props) => (props.primary ? '#fff' : 'red')};
-  border: 1px solid ${(props) => (props.primary ? '#00a8a8' : 'red')};
-  width:162.58px;
-  font-size:16px;
+  background-color: ${(props) => (props.primary ? "#00a8a8" : "#fff")};
+  color: ${(props) => (props.primary ? "#fff" : "red")};
+  border: 1px solid ${(props) => (props.primary ? "#00a8a8" : "red")};
+  width: 162.58px;
+  font-size: 16px;
 
   &:hover {
-    background-color: ${(props) => (props.primary ? '#008080' : '#f5f5f5')};
+    background-color: ${(props) => (props.primary ? "#008080" : "#f5f5f5")};
   }
 `;
 
@@ -164,15 +188,15 @@ const DueDateButton = styled.button`
 `;
 
 const DateWrapper = styled.div`
-  position: relative; /* Important for absolute positioning inside */
-  display: inline-block; /* Ensure the button and calendar stay inline */
+  position: relative;
+  display: inline-block;
 `;
 
 const CalendarContainer = styled.div`
-position: absolute;
-    top: -238px;
-    left: 100px;
-    z-index: 1000;
+  position: absolute;
+  top: -238px;
+  left: 100px;
+  z-index: 1000;
 `;
 
 const SelectDropdown = styled.select`
@@ -186,96 +210,181 @@ const SelectDropdown = styled.select`
   cursor: pointer;
 `;
 
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+`;
+
+const AssignInputContainer = styled.div`
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+`;
+
+const InputField = styled.input`
+  border: none;
+  outline: none;
+  width: 100%;
+  padding-right: 24px;
+`;
+
+const DropdownIcon = styled(FaAngleDown)`
+  position: absolute;
+  right: 10px;
+  color: #888;
+`;
+
+const OptionsContainer = styled.div`
+  position: absolute;
+  top: 79%;
+  right: 0%;
+  width: 84%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  z-index: 10;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+`;
+
+const UserOption = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
+const ButtonLogo = styled.button`
+  background-color: #ffebeb;
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+`;
+
+const AssigneeText = styled.p`
+  margin: 0 10px;
+  flex-grow: 1;
+`;
+
+const AssignButton = styled.button`
+  background-color: #e2e2e2;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  width: 154px;
+  height: 31px;
+`;
+
 const TaskModal = ({ onClose, fetchTasksCards }) => {
-  const [title, setTitle] = useState('');
-  const [priority, setPriority] = useState('MODERATE_PRIORITY');
-  const [assignee, setAssignee] = useState('');
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("MODERATE_PRIORITY");
+  const [assignee, setAssignee] = useState("");
   const [dueDate, setDueDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [checklist, setChecklist] = useState([]);
-  const [users,setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(""); // State for the selected user's email
+
   // Validation states
   const [errors, setErrors] = useState({
-    title: '',
-    checklist: ''
+    title: "",
+    checklist: ""
   });
-
+  const [isShown, setisShown] = useState(false);
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
-      title: '',
-      priority: '',
-      dueDate: '',
-      checklist: ''
+      title: "",
+      priority: "",
+      dueDate: "",
+      checklist: ""
     };
 
-  if (!title.trim()) {
-    newErrors.title = 'Title is required';
-    isValid = false;
-  } else if (title.trim().length < 3) {
-    newErrors.title = 'Title must be at least 3 characters long';
-    isValid = false;
-  }
-
-  if (checklist.length === 0) {
-    newErrors.checklist = 'At least one checklist item is required';
-    isValid = false;
-  } else {
-    const hasEmptyTasks = checklist.some(item => !item.text.trim());
-    if (hasEmptyTasks) {
-      newErrors.checklist = 'All checklist items must have a description';
+    if (!title.trim()) {
+      newErrors.title = "Title is required";
+      isValid = false;
+    } else if (title.trim().length < 3) {
+      newErrors.title = "Title must be at least 3 characters long";
       isValid = false;
     }
 
-    const hasCheckedItem = checklist.some(item => item.completed);
-    if (!hasCheckedItem) {
-      newErrors.checklist = 'At least one checklist item is required';
+    if (checklist.length === 0) {
+      newErrors.checklist = "At least one checklist item is required";
       isValid = false;
+    } else {
+      const hasEmptyTasks = checklist.some((item) => !item.text.trim());
+      if (hasEmptyTasks) {
+        newErrors.checklist = "All checklist items must have a description";
+        isValid = false;
+      }
+
+      const hasCheckedItem = checklist.some((item) => item.completed);
+      if (!hasCheckedItem) {
+        newErrors.checklist = "At least one checklist item is required";
+        isValid = false;
+      }
     }
-  }
 
     setErrors(newErrors);
     return isValid;
   };
 
-const getCheckedCount = () => checklist.filter(item => item.completed).length;
+  const getCheckedCount = () =>
+    checklist.filter((item) => item.completed).length;
 
   const handleAddChecklistItem = () => {
     const newItem = {
       id: Date.now(),
-      text: '',
+      text: "",
       completed: false
     };
     setChecklist([...checklist, newItem]);
   };
 
   const handleRemoveChecklistItem = (id) => {
-    setChecklist(checklist.filter(item => item.id !== id));
-    setErrors(prev => ({ ...prev, checklist: '' }));
+    setChecklist(checklist.filter((item) => item.id !== id));
+    setErrors((prev) => ({ ...prev, checklist: "" }));
   };
 
   const handleChecklistItemChange = (id, completed) => {
-    setChecklist(checklist.map(item =>
-      item.id === id ? { ...item, completed } : item
-    ));
+    setChecklist(
+      checklist.map((item) => (item.id === id ? { ...item, completed } : item))
+    );
   };
 
   const handleChecklistTextChange = (id, text) => {
-    setChecklist(checklist.map(item =>
-      item.id === id ? { ...item, text } : item
-    ));
-    setErrors(prev => ({ ...prev, checklist: '' }));
+    setChecklist(
+      checklist.map((item) => (item.id === id ? { ...item, text } : item))
+    );
+    setErrors((prev) => ({ ...prev, checklist: "" }));
   };
 
   const handleSave = async () => {
     if (validateForm()) {
       const taskData = {
         title: title,
-        status:"To Do",
+        status: "To Do",
         priority: priority,
-        assignee: assignee,
-        dueDate: dueDate ? dueDate :null,
-        checklist: checklist.filter(item=>item.completed === true),
+        assignee: selectedEmail,
+        dueDate: dueDate ? dueDate : null,
+        checklist: checklist.filter((item) => item.completed === true)
       };
       try {
         const url = `${import.meta.env.VITE_API_KEY}/auth/tasks`;
@@ -284,9 +393,9 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"),
+            Authorization: localStorage.getItem("token")
           },
-          body: JSON.stringify(taskData),
+          body: JSON.stringify(taskData)
         });
 
         let result = await response.json();
@@ -294,11 +403,10 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         if (success) {
           handleSuccess(message);
           fetchTasksCards();
-         onClose();
+          onClose();
         } else if (error) {
           handleError(error.details ? error.details[0].message : error.message);
-        }
-        else{
+        } else {
           handleError(message);
         }
       } catch (error) {
@@ -348,152 +456,215 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
     setShowCalendar(false);
   };
 
+  const handleUserSelect = (email) => {
+    setSelectedEmail(email); // Update the selected email
+    setisShown(false); // Hide the dropdown
+  };
+
+  const toggleDropdown = () => {
+    setisShown((prev) => !prev);
+  };
+
   return (
     <ModalBackground>
-    <ModalContainer>
-      {/* Title Input */}
-      <div>
-        <Label>
-          Title <span style={{ color: '#ff4d4f' }}>*</span>
-        </Label>
-        <Input
-          placeholder="Enter Task Title"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            setErrors(prev => ({ ...prev, title: '' }));
+      <ModalContainer>
+        {/* Title Input */}
+        <div>
+          <Label>
+            Title <span style={{ color: "#ff4d4f" }}>*</span>
+          </Label>
+          <Input
+            placeholder="Enter Task Title"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setErrors((prev) => ({ ...prev, title: "" }));
+            }}
+            error={!!errors.title}
+          />
+          {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
+        </div>
+
+        {/* Priority Selection */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "20px",
+            justifyContent: "space-between",
+            paddingBottom: "10px"
           }}
-          error={!!errors.title}
-        />
-        {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
-      </div>
+        >
+          <Label>
+            Select Priority <span style={{ color: "#ff4d4f" }}>*</span>
+          </Label>
+          <PriorityGroup>
+            <PriorityButton status="HIGH_PRIORITY">
+              <input
+                type="radio"
+                name="priority"
+                value="HIGH_PRIORITY"
+                checked={priority === "HIGH_PRIORITY"}
+                onChange={(e) => {
+                  setPriority(e.target.value);
+                  setErrors((prev) => ({ ...prev, priority: "" }));
+                }}
+              />
+              <span>HIGH PRIORITY</span>
+            </PriorityButton>
+            <PriorityButton status="MODERATE_PRIORITY">
+              <input
+                type="radio"
+                name="priority"
+                value="MODERATE_PRIORITY"
+                checked={priority === "MODERATE_PRIORITY"}
+                onChange={(e) => {
+                  setPriority(e.target.value);
+                  setErrors((prev) => ({ ...prev, priority: "" }));
+                }}
+              />
+              <span>MODERATE PRIORITY</span>
+            </PriorityButton>
+            <PriorityButton status="LOW_PRIORITY">
+              <input
+                type="radio"
+                name="priority"
+                value="LOW_PRIORITY"
+                checked={priority === "LOW_PRIORITY"}
+                onChange={(e) => {
+                  setPriority(e.target.value);
+                  setErrors((prev) => ({ ...prev, priority: "" }));
+                }}
+              />
+              <span>LOW PRIORITY</span>
+            </PriorityButton>
+          </PriorityGroup>
+        </div>
 
-      {/* Priority Selection */}
-      <div style={{    display: "flex", alignItems: "center",justifyContent: "space-between"}}>
-        <Label>
-          Select Priority <span style={{ color: '#ff4d4f' }}>*</span>
-        </Label>
-        <PriorityGroup>
-          <PriorityButton>
-            <input
-              type="radio"
-              name="priority"
-              value="HIGH_PRIORITY"
-              checked={priority === 'HIGH_PRIORITY'}
-              onChange={(e) => {
-                setPriority(e.target.value);
-                setErrors(prev => ({ ...prev, priority: '' }));
-              }}
-            />
-            <span>HIGH PRIORITY</span>
-          </PriorityButton>
-          <PriorityButton>
-            <input
-              type="radio"
-              name="priority"
-              value="MODERATE_PRIORITY"
-              checked={priority === 'MODERATE_PRIORITY'}
-              onChange={(e) => {
-                setPriority(e.target.value);
-                setErrors(prev => ({ ...prev, priority: '' }));
-              }}
-            />
-            <span>MODERATE PRIORITY</span>
-          </PriorityButton>
-          <PriorityButton>
-            <input
-              type="radio"
-              name="priority"
-              value="LOW_PRIORITY"
-              checked={priority === 'LOW_PRIORITY'}
-              onChange={(e) => {
-                setPriority(e.target.value);
-                setErrors(prev => ({ ...prev, priority: '' }));
-              }}
-            />
-            <span>LOW PRIORITY</span>
-          </PriorityButton>
-        </PriorityGroup>
-      </div>
-
-      {/* Assignee Input */}
-      <div style={{    display: "flex", alignItems: "baseline"}}>
-        <Label style={{width:"120px"}}>Assign to</Label>
-        <SelectDropdown
+        {/* Assignee Input */}
+        {/* <div style={{ display: "flex", alignItems: "baseline" }}>
+          <Label style={{ width: "120px" }}>Assign to</Label>
+          <SelectDropdown
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
           >
-            <option value="" disabled>Select an assignee</option>
-            {users.map(user => (
+            <option value="" disabled>
+              Select an assignee
+            </option>
+            {users.map((user) => (
               <option key={user._id} value={user.email}>
                 {user.email}
               </option>
             ))}
           </SelectDropdown>
-      </div>
+        </div> */}
+        <Container>
+          <Label style={{ width: "120px" }}>Assign to</Label>
+          <AssignInputContainer onClick={toggleDropdown}>
+            <InputField
+              type="text"
+              name="assign"
+              value={selectedEmail}
+              readOnly
+            />
+            <DropdownIcon />
+          </AssignInputContainer>
 
-      {/* Checklist */}
-      <div>
-        <Label>
-          Checklist ({getCheckedCount()}/{checklist.length}) <span style={{ color: '#ff4d4f' }}>*</span>
-        </Label>
-        <ChecklistContainer>
-          {checklist.map((item) => (
-            <ChecklistItem key={item.id}>
-              <input
-                type="checkbox"
-                checked={item.completed}
-                onChange={(e) => handleChecklistItemChange(item.id, e.target.checked)}
-              />
+          {isShown && (
+            <OptionsContainer>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <UserOption
+                    key={user._id}
+                    onClick={() => handleUserSelect(user.email)}
+                  >
+                    <ButtonLogo>AK</ButtonLogo>
+                    <AssigneeText>{user.email}</AssigneeText>
+                    <AssignButton>Assign</AssignButton>
+                  </UserOption>
+                ))
+              ) : (
+                <div>No users available</div>
+              )}
+            </OptionsContainer>
+          )}
+        </Container>
 
-              <ChecklistInput
-                value={item.text}
-                placeholder="Task to be done"
-                onChange={(e) => handleChecklistTextChange(item.id, e.target.value)}
-                error={!!errors.checklist}
-              />
-              <DeleteButton onClick={() => handleRemoveChecklistItem(item.id)}>
-                <img src={DeleteIcon} alt=''/>
-              </DeleteButton>
-            </ChecklistItem>
-          ))}
-          <AddNewButton onClick={handleAddChecklistItem}>
-            + Add New
-          </AddNewButton>
-          {errors.checklist && <ErrorMessage>{errors.checklist}</ErrorMessage>}
-        </ChecklistContainer>
-      </div>
-<div style={{display:"flex",justifyContent:"space-between",paddingTop:"3rem"}}>
-      {/* Due Date */}
-      <DateWrapper>
-      <DueDateButton onClick={() => setShowCalendar(true)}>
-        {dueDate ? `${dueDate.toLocaleDateString()}` : 'Select Due Date'}
-      </DueDateButton>
+        {/* Checklist */}
+        <div>
+          <Label>
+            Checklist ({getCheckedCount()}/{checklist.length}){" "}
+            <span style={{ color: "#ff4d4f" }}>*</span>
+          </Label>
+          <ChecklistContainer>
+            {checklist.map((item) => (
+              <ChecklistItem key={item.id}>
+                <input
+                  type="checkbox"
+                  checked={item.completed}
+                  onChange={(e) =>
+                    handleChecklistItemChange(item.id, e.target.checked)
+                  }
+                />
 
-      {showCalendar && (
-        <CalendarContainer>
-        <DatePicker
-          selected={dueDate}
-          onChange={handleDateChange}
-          inline
-          onClickOutside={() => setShowCalendar(false)}
-        />
-        </CalendarContainer>
-      )}
-    </DateWrapper>
+                <ChecklistInput
+                  value={item.text}
+                  placeholder="Task to be done"
+                  onChange={(e) =>
+                    handleChecklistTextChange(item.id, e.target.value)
+                  }
+                  error={!!errors.checklist}
+                />
+                <DeleteButton
+                  onClick={() => handleRemoveChecklistItem(item.id)}
+                >
+                  <img src={DeleteIcon} alt="" />
+                </DeleteButton>
+              </ChecklistItem>
+            ))}
+            <AddNewButton onClick={handleAddChecklistItem}>
+              + Add New
+            </AddNewButton>
+            {errors.checklist && (
+              <ErrorMessage>{errors.checklist}</ErrorMessage>
+            )}
+          </ChecklistContainer>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingTop: "3rem"
+          }}
+        >
+          {/* Due Date */}
+          <DateWrapper>
+            <DueDateButton onClick={() => setShowCalendar(true)}>
+              {dueDate ? `${dueDate.toLocaleDateString()}` : "Select Due Date"}
+            </DueDateButton>
 
-      {/* Footer Buttons */}
-      <ModalFooter>
-        <Button onClick={onClose}>
-          Cancel
-        </Button>
-        <Button primary onClick={handleSave}>
-          Save
-        </Button>
-      </ModalFooter>
-      </div>
-    </ModalContainer>
-  </ModalBackground>
+            {showCalendar && (
+              <CalendarContainer>
+                <DatePicker
+                  selected={dueDate}
+                  onChange={handleDateChange}
+                  inline
+                  onClickOutside={() => setShowCalendar(false)}
+                />
+              </CalendarContainer>
+            )}
+          </DateWrapper>
+
+          {/* Footer Buttons */}
+          <ModalFooter>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button primary onClick={handleSave}>
+              Save
+            </Button>
+          </ModalFooter>
+        </div>
+      </ModalContainer>
+    </ModalBackground>
   );
 };
 
