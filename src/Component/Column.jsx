@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import TaskCard from './TaskCard'; // Assuming you have a TaskCard component
+import TaskCard from './TaskCard';
 import Plus from "../assets/image/Plus.png"
 import CollapseImage from "../assets/image/codicon_collapse-all.png"
 import TaskModal from './TaskModal';
@@ -13,16 +13,16 @@ const ColumnContainer = styled.div`
   padding: 10px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Enable vertical scroll inside the column */
-  height: calc(80vh - 20px); /* Full height of the viewport minus some padding */
-  box-sizing: border-box; /* Ensure padding and border are included in the height */
+  overflow-y: auto;
+  height: calc(80vh - 20px);
+  box-sizing: border-box;
   min-inline-size: fit-content;
   position: relative;
 `;
 
 const ColumnTitle = styled.h4`
   text-align: left;
-  flex-shrink: 0; /* Prevent the title from shrinking when content overflows */
+  flex-shrink: 0;
 `;
 
 const AddImage = styled.img`
@@ -31,8 +31,13 @@ const AddImage = styled.img`
     top: 30px;
     cursor: pointer;
 `;
-const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus,setRefresh }) => {
+const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus,setRefresh,setTasks }) => {
   const [addPopup,setAddPopup] = useState(false);
+  const [collapseAll,setCollapseAll] = useState(false);
+
+  const handleCollapseAll = () => {
+    setCollapseAll((prev) => !prev);
+  };
   return (
     <ColumnContainer>
       <ColumnTitle>{title}</ColumnTitle>
@@ -40,7 +45,7 @@ const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus,setRefresh }) =
         <p>No tasks available</p>
       ) : (
         tasks.map((task, index) => (
-          <TaskCard key={index} task={task} fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus} setRefresh={setRefresh}/>
+          <TaskCard key={`${task._id}-${task.checklist.length}`} task={task} fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus} setRefresh={setRefresh} collapseAll={collapseAll} setTasks={setTasks}/>
         ))
       )}
       {title === 'To Do' && (
@@ -48,7 +53,7 @@ const Column = ({ title, tasks, fetchTasksCards,updateTaskStatus,setRefresh }) =
           <AddImage onClick={()=>setAddPopup(true)} src={Plus} alt=""/>
         </>
       )}
-      <AddImage src={CollapseImage} alt="" style={{right:"10px"}}/>
+      <AddImage src={CollapseImage} onClick={handleCollapseAll} alt="" style={{right:"10px"}}/>
           {
             addPopup ? <TaskModal onClose={()=>setAddPopup(false)} fetchTasksCards={fetchTasksCards}/> : null
           }

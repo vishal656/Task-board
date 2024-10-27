@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { handleSuccess } from "../utils";
+import { handleSuccess,handleError } from "../utils";
 import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
@@ -62,7 +62,7 @@ const CreateButton = styled.button`
 `;
 
 const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
-  // Inside TaskCard component
+
   const handleDelete = async () => {
     try {
       const url = `${import.meta.env.VITE_API_KEY}/auth/tasks/${modalData._id}`;
@@ -77,14 +77,14 @@ const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
 
       const result = await response.json();
       if (result.success) {
-        console.log("Task deleted successfully");
+        handleSuccess("Task deleted successfully");
         fetchTasksCards();
         onClose();
       } else {
         console.error(result.error);
       }
     } catch (error) {
-      console.error("Failed to delete task:", error);
+      handleError("Failed to delete task:", error);
     }
   };
 

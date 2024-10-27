@@ -8,8 +8,14 @@ const Board = styled.div`
   width: 100%;
 `;
 
-const TaskBoard = ({ tasks, filter ,fetchTasksCards,updateTaskStatus,setRefresh}) => {
-
+const TaskBoard = ({
+  tasks,
+  filter,
+  fetchTasksCards,
+  updateTaskStatus,
+  setRefresh,
+  setTasks
+}) => {
   const parseDueDate = (dueDate) => {
     return new Date(dueDate); // Use the date directly as it's already in ISO format
   };
@@ -24,8 +30,12 @@ const TaskBoard = ({ tasks, filter ,fetchTasksCards,updateTaskStatus,setRefresh}
       if (filter === "today") {
         return taskDate.toDateString() === today.toDateString();
       } else if (filter === "this week") {
-        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-        const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+        const startOfWeek = new Date(
+          today.setDate(today.getDate() - today.getDay())
+        );
+        const endOfWeek = new Date(
+          today.setDate(today.getDate() - today.getDay() + 6)
+        );
         return taskDate >= startOfWeek && taskDate <= endOfWeek;
       } else if (filter === "this month") {
         return (
@@ -40,17 +50,49 @@ const TaskBoard = ({ tasks, filter ,fetchTasksCards,updateTaskStatus,setRefresh}
   const filteredTasks = filterTasks(tasks);
 
   // Filter tasks based on their status
-  const backlogTasks = filteredTasks.filter((task) => task.status === "Backlog");
+  const backlogTasks = filteredTasks.filter(
+    (task) => task.status === "Backlog"
+  );
   const todoTasks = filteredTasks.filter((task) => task.status === "To Do");
-  const inProgressTasks = filteredTasks.filter((task) => task.status === "In Progress");
+  const inProgressTasks = filteredTasks.filter(
+    (task) => task.status === "In Progress"
+  );
   const doneTasks = filteredTasks.filter((task) => task.status === "Done");
 
   return (
     <Board>
-      <TaskColumn title="Backlog" tasks={backlogTasks} updateTaskStatus={updateTaskStatus}  fetchTasksCards={fetchTasksCards} setRefresh={setRefresh}/>
-      <TaskColumn title="To Do" tasks={todoTasks}  fetchTasksCards={fetchTasksCards} updateTaskStatus={updateTaskStatus} setRefresh={setRefresh}/>
-      <TaskColumn title="In Progress" tasks={inProgressTasks} updateTaskStatus={updateTaskStatus}  fetchTasksCards={fetchTasksCards} setRefresh={setRefresh}/>
-      <TaskColumn title="Done" tasks={doneTasks} updateTaskStatus={updateTaskStatus}  fetchTasksCards={fetchTasksCards} setRefresh={setRefresh}/>
+      <TaskColumn
+        title="Backlog"
+        tasks={backlogTasks}
+        updateTaskStatus={updateTaskStatus}
+        fetchTasksCards={fetchTasksCards}
+        setRefresh={setRefresh}
+        setTasks={setTasks}
+      />
+      <TaskColumn
+        title="To Do"
+        tasks={todoTasks}
+        fetchTasksCards={fetchTasksCards}
+        updateTaskStatus={updateTaskStatus}
+        setRefresh={setRefresh}
+        setTasks={setTasks}
+      />
+      <TaskColumn
+        title="In Progress"
+        tasks={inProgressTasks}
+        updateTaskStatus={updateTaskStatus}
+        fetchTasksCards={fetchTasksCards}
+        setRefresh={setRefresh}
+        setTasks={setTasks}
+      />
+      <TaskColumn
+        title="Done"
+        tasks={doneTasks}
+        updateTaskStatus={updateTaskStatus}
+        fetchTasksCards={fetchTasksCards}
+        setRefresh={setRefresh}
+        setTasks={setTasks}
+      />
     </Board>
   );
 };

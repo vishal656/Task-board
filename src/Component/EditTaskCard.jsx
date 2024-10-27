@@ -187,8 +187,8 @@ const DueDateButton = styled.button`
 `;
 
 const DateWrapper = styled.div`
-  position: relative; /* Important for absolute positioning inside */
-  display: inline-block; /* Ensure the button and calendar stay inline */
+  position: relative;
+  display: inline-block;
 `;
 
 const CalendarContainer = styled.div`
@@ -291,13 +291,13 @@ const AssignButton = styled.button`
   height: 31px;
 `;
 
-const EditTaskCard = ({onClose,fetchTasksCards,modalData,setRefresh}) => {
+const EditTaskCard = ({onClose,fetchTasksCards,modalData,setRefresh,setTasks}) => {
   const [title, setTitle] = useState(modalData.title ||'');
   const [priority, setPriority] = useState(modalData.priority || 'MODERATE_PRIORITY');
   const [assignee, setAssignee] = useState(modalData.assignee || '');
   const [dueDate, setDueDate] = useState(modalData.dueDate ? new Date(modalData.dueDate) : null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedEmail, setSelectedEmail] = useState('');
+  const [selectedEmail, setSelectedEmail] = useState(modalData.assignee ||'');
   const [isShown, setisShown] = useState(false);
   const [checklist, setChecklist] = useState(
     (modalData.checklist || []).map(item => ({
@@ -306,10 +306,8 @@ const EditTaskCard = ({onClose,fetchTasksCards,modalData,setRefresh}) => {
     }))
   );
 
-  console.log("checklist", checklist,modalData);
-
   const [users,setUsers] = useState([]);
-  // Validation states
+
   const [errors, setErrors] = useState({
     title: '',
     checklist: ''
@@ -409,7 +407,13 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         if (success) {
           handleSuccess(message);
          // fetchTasksCards();
-         setRefresh(uuidv4());
+         setTasks(prevTasks => {
+          const updatedTasks = prevTasks.map(task =>
+            task._id === modalData._id ? { ...task, ...taskData } : task
+          );
+          return [...updatedTasks];
+        });
+         //setRefresh(uuidv4());
          onClose();
         } else if (error) {
           handleError(error.details ? error.details[0].message : error.message);
@@ -466,13 +470,26 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
 
 
   const handleUserSelect = (email) => {
-    setSelectedEmail(email); // Update the selected email
-    setisShown(false); // Hide the dropdown
+    setSelectedEmail(email);
+    setisShown(false);
   };
 
   const toggleDropdown = () => {
     setisShown((prev) => !prev);
   };
+
+  let UserNameCapitalized = (name) => {
+    let trimmedName = name.trim();
+    let username = trimmedName.split(/\s+/);
+    if (username.length > 1) {
+        return (
+            username[0].slice(0, 1).toUpperCase() +
+            username[1].slice(0, 1).toUpperCase()
+        );
+    } else {
+        return username[0].slice(0, 1).toUpperCase();
+    }
+};
 
 
   return (
@@ -495,7 +512,7 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
         {errors.title && <ErrorMessage>{errors.title}</ErrorMessage>}
       </div>
 
-      {/* Priority Selection */}
+
       <div
           style={{
             display: "flex",
@@ -550,21 +567,6 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
           </PriorityGroup>
         </div>
 
-      {/* Assignee Input */}
-      {/* <div style={{    display: "flex", alignItems: "baseline"}}>
-        <Label style={{width:"120px"}}>Assign to</Label>
-        <SelectDropdown
-            value={assignee}
-            onChange={(e) => setAssignee(e.target.value)}
-          >
-            <option value="" disabled>Select an assignee</option>
-            {users.map(user => (
-              <option key={user._id} value={user.email}>
-                {user.email}
-              </option>
-            ))}
-          </SelectDropdown>
-      </div> */}
       <Container>
         <Label style={{ width: "120px" }}>Assign to</Label>
       <AssignInputContainer onClick={toggleDropdown}>
@@ -577,7 +579,7 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
           {users.length > 0 ? (
             users.map((user) => (
               <UserOption key={user._id} onClick={() => handleUserSelect(user.email)}>
-                <ButtonLogo>AK</ButtonLogo>
+                <ButtonLogo>{UserNameCapitalized(user.name)}</ButtonLogo>
                 <AssigneeText>{user.email}</AssigneeText>
                 <AssignButton>Assign</AssignButton>
               </UserOption>
@@ -609,7 +611,7 @@ const getCheckedCount = () => checklist.filter(item => item.completed).length;
                 onChange={(e) => handleChecklistTextChange(item.id, e.target.value)}
                 error={!!errors.checklist}
               />
-              <DeleteButton onClick={() => {console.log("id",item.id);handleRemoveChecklistItem(item.id)}}>
+              <DeleteButton onClick={() => {handleRemoveChecklistItem(item.id)}}>
                 <img src={DeleteIcon} alt=''/>
               </DeleteButton>
             </ChecklistItem>

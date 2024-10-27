@@ -6,6 +6,7 @@ import codeSandbox from "../assets/image/codesandbox.png";
 import Database from "../assets/image/database.png";
 import Settings from "../assets/image/settings.png";
 import AddPeople from "../assets/image/AddPeople.png";
+import AddBoard from "./AddPeople";
 import Logout from "../assets/image/Logout.png";
 import Board from "../assets/image/layout.png";
 import Analytics from "./Analytics";
@@ -21,14 +22,14 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.div`
-  width: 250px; /* Fixed width */
-  min-width: 250px; /* Prevent shrinking */
-  max-width: 250px; /* Prevent expanding */
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
   background-color: #ffffff;
   padding: 5px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures logout is at the bottom */
+  justify-content: space-between;
 `;
 
 const SidebarItems = styled.div`
@@ -46,36 +47,35 @@ const SidebarItem = styled.div`
   font-size: 16px;
   font-family: "Poppins";
   display: flex;
-  align-items: center; /* Ensures vertical alignment of image and text */
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  justify-content: center; /* Align content to the left */
-  gap: 14px; /* Space between icon and text */
+  justify-content: center;
+  gap: 14px;
 
-  /* Ensure the icon has a fixed size */
   img {
     width: 24px;
     height: 24px;
-    object-fit: contain; /* Maintain the aspect ratio of the image */
+    object-fit: contain;
   }
 `;
 
 const LogoutItem = styled(SidebarItem)`
-  margin-top: auto; /* Forces the logout to the bottom */
+  margin-top: auto;
   background-color: transparent;
   color: red;
   &:hover {
-    background-color: #4391ed1a; /* Light red hover effect */
+    background-color: #4391ed1a;
   }
 `;
 
 const ContentContainer = styled.div`
   flex-grow: 1;
   display: flex;
-  flex-direction: column; /* Stack header and content vertically */
+  flex-direction: column;
 `;
 
 const Header = styled.div`
@@ -108,38 +108,6 @@ const SideBarContent = styled.p`
   gap: 15px;
 `;
 
-// Sample Data
-// const task = [
-//   {
-//     title: "Hero section",
-//     priority: "High",
-//     dueDate: "oct 22th",
-//     status: "to-do",
-//     checklist: [
-//       { text: "Task to be done", completed: true },
-//       { text: "Task to be done", completed: false },
-//       {
-//         text: "Task to be done ede lorem Ipsum is a Dummy text",
-//         completed: false
-//       }
-//     ]
-//   },
-//   {
-//     title: "Zero section",
-//     priority: "Low",
-//     dueDate: "oct 10th",
-//     status: "backlog",
-//     checklist: [
-//       { text: "Task to be done", completed: true },
-//       { text: "Task to be done", completed: false },
-//       {
-//         text: "Task to be done ede lorem Ipsum is a Dummy text",
-//         completed: false
-//       }
-//     ]
-//   }
-// ];
-
 // Home component
 const Home = () => {
   const [loggedInUser, setLoggedInUser] = useState("");
@@ -149,6 +117,7 @@ const Home = () => {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("this week");
   const [logoutPopup, setLogoutPopup] = useState(false);
+  const [addPeoplePopup, setPeoplePopup] = useState(false);
   useEffect(() => {
     setLoggedInUser(localStorage.getItem("name"));
     setLoggedInEmail(localStorage.getItem("email"));
@@ -232,10 +201,10 @@ const Home = () => {
 
       const result = await response.json();
       if (result.success) {
-        return result.task; // return the updated task
+        return result.task;
       } else {
         handleError(result.message);
-        return null; // return null if there's an error
+        return null;
       }
     } catch (error) {
       handleError(error);
@@ -258,6 +227,9 @@ const Home = () => {
     if (selectedPage === "Board") {
       return (
         <>
+        {
+          addPeoplePopup ?<AddBoard onClose={()=>setPeoplePopup(false)}/> : null
+        }
           <Header>
             <div>Welcome! {loggedInUser}</div>
             <div>
@@ -269,7 +241,7 @@ const Home = () => {
           <Header style={{ padding: "0px 10px 20px" }}>
           <div style={{display:"flex",gap:"40px"}}>
             <div>Board</div>{" "}
-            <img src={AddPeople} alt="" />
+            <img src={AddPeople} alt="" style={{cursor:"pointer"}} onClick={()=>setPeoplePopup(true)}/>
             </div>
             <div>
               <p>
@@ -283,7 +255,7 @@ const Home = () => {
             </div>
           </Header>
           <Content>
-            <TaskBoard tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards} updateTaskStatus={handleStatusChange} setRefresh={setRefresh}/>
+            <TaskBoard setTasks={setTasks} tasks={tasks} filter={filter} fetchTasksCards={fetchTasksCards} updateTaskStatus={handleStatusChange} setRefresh={setRefresh}/>
           </Content>
         </>
       );

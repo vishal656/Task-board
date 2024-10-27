@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EditTaskCard from "./EditTaskCard";
@@ -85,14 +85,14 @@ const DueDate = styled.div`
   display: inline-block;
   width: 31px;
   height: 12px;
-  text-align:center;
+  text-align: center;
 `;
 
 const StatusContainer = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
-  gap:15px;
+  gap: 15px;
 `;
 
 const StatusButton = styled.button`
@@ -139,13 +139,26 @@ const MenuItem = styled.div`
 `;
 
 const ColorItem = styled.div`
- width: 9px;
-    height: 9px;
-    background-color:${(props) => (props.status==="HIGH_PRIORITY" ? "#FF2473" : props.status === "MODERATE_PRIORITY" ? "#18B0FF" :"#63C05B")} ;
-    border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  background-color: ${(props) =>
+    props.status === "HIGH_PRIORITY"
+      ? "#FF2473"
+      : props.status === "MODERATE_PRIORITY"
+      ? "#18B0FF"
+      : "#63C05B"};
+  border-radius: 50%;
 `;
 
-const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
+const TaskCard = ({
+  task,
+  fetchTasksCards,
+  updateTaskStatus,
+  setRefresh,
+  collapseAll,
+  setTasks
+}) => {
+  const dropdownRef = useRef(null);
   const [checklist, setChecklist] = useState(task.checklist);
   const [isChecklistVisible, setIsChecklistVisible] = useState(true);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -158,6 +171,27 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
     );
     setChecklist(updatedChecklist);
   };
+
+  const toggleDropdown = () => {
+    setIsPopupVisible((prev) => !prev);
+  };
+
+  const closeDropdown = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsPopupVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', closeDropdown);
+    return () => {
+      document.removeEventListener('mousedown', closeDropdown);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsChecklistVisible(!collapseAll);
+  }, [collapseAll]);
 
   const toggleChecklistVisibility = () => {
     setIsChecklistVisible((prev) => !prev);
@@ -180,7 +214,8 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
     return `${formattedDate}${suffix}`;
   };
 
-  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== "Done";
+  const isOverdue =
+    new Date(task.dueDate) < new Date() && task.status !== "Done";
 
   const handleStatusChange = (taskId, newStatus) => {
     updateTaskStatus(taskId, newStatus);
@@ -194,6 +229,8 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
           modalData={modalData}
           updateTaskStatus={updateTaskStatus}
           setRefresh={setRefresh}
+          task={task}
+          setTasks={setTasks}
         />
       ) : null}
 
@@ -205,22 +242,22 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
         />
       ) : null}
       <TaskHeader>
-      <>
-      <div style={{display:"flex",gap:"5px"}}>
-      <ColorItem status={task?.priority}></ColorItem>
-      <Priority>{task.priority.toUpperCase()}</Priority>
-      </div>
-        <FontAwesomeIcon
-          icon={faEllipsisH}
-          onClick={() => setIsPopupVisible((prev) => !prev)}
-          style={{ cursor: "pointer" }}
-        />
+        <>
+          <div style={{ display: "flex", gap: "5px" }}>
+            <ColorItem status={task?.priority}></ColorItem>
+            <Priority>{task.priority.toUpperCase()}</Priority>
+          </div>
+          <FontAwesomeIcon
+            icon={faEllipsisH}
+            onClick={() => setIsPopupVisible((prev) => !prev)}
+            style={{ cursor: "pointer" }}
+          />
         </>
       </TaskHeader>
 
       <TaskTitle>{task.title}</TaskTitle>
 
-      <PopupMenu visible={isPopupVisible}>
+      <PopupMenu visible={isPopupVisible} ref={dropdownRef}>
         <MenuItem
           onClick={() => {
             setModalData(task);
@@ -231,11 +268,16 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
           Edit
         </MenuItem>
         <MenuItem>Share</MenuItem>
-        <MenuItem   onClick={() => {
+        <MenuItem
+          onClick={() => {
             setModalData(task);
             setIsPopupVisible(false);
             setIsDeleteVisible(true);
-          }} danger>Delete</MenuItem>
+          }}
+          danger
+        >
+          Delete
+        </MenuItem>
       </PopupMenu>
 
       <ChecklistTitleContainer onClick={toggleChecklistVisibility}>
@@ -266,39 +308,48 @@ const TaskCard = ({ task, fetchTasksCards,updateTaskStatus,setRefresh }) => {
         </ChecklistContainer>
       )}
 
-<div style={{display:"flex", justifyContent:"space-between",    alignItems: "flex-end"}}>
-      {task.dueDate && (
-        <DueDate isOverdue={isOverdue} status={task.status}>{formatDate(task.dueDate)}</DueDate>
-      )}
-
-      <StatusContainer>
-        {task.status !== "Backlog" && (
-          <StatusButton onClick={() => handleStatusChange(task._id, "Backlog")}>
-            Backlog
-          </StatusButton>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end"
+        }}
+      >
+        {task.dueDate && (
+          <DueDate isOverdue={isOverdue} status={task.status}>
+            {formatDate(task.dueDate)}
+          </DueDate>
         )}
 
-        {task.status !== "To Do" && (
-          <StatusButton onClick={() => handleStatusChange(task._id, "To Do")}>
-            To Do
-          </StatusButton>
-        )}
+        <StatusContainer>
+          {task.status !== "Backlog" && (
+            <StatusButton
+              onClick={() => handleStatusChange(task._id, "Backlog")}
+            >
+              Backlog
+            </StatusButton>
+          )}
 
-        {task.status !== "In Progress" && (
-          <StatusButton
-            onClick={() => handleStatusChange(task._id, "In Progress")}
-          >
-            Progress
-          </StatusButton>
-        )}
+          {task.status !== "To Do" && (
+            <StatusButton onClick={() => handleStatusChange(task._id, "To Do")}>
+              To Do
+            </StatusButton>
+          )}
 
-        {task.status !== "Done" && (
-          <StatusButton onClick={() => handleStatusChange(task._id, "Done")}>
-            Done
-          </StatusButton>
-        )}
+          {task.status !== "In Progress" && (
+            <StatusButton
+              onClick={() => handleStatusChange(task._id, "In Progress")}
+            >
+              Progress
+            </StatusButton>
+          )}
 
-      </StatusContainer>
+          {task.status !== "Done" && (
+            <StatusButton onClick={() => handleStatusChange(task._id, "Done")}>
+              Done
+            </StatusButton>
+          )}
+        </StatusContainer>
       </div>
     </CardContainer>
   );

@@ -457,13 +457,26 @@ const TaskModal = ({ onClose, fetchTasksCards }) => {
   };
 
   const handleUserSelect = (email) => {
-    setSelectedEmail(email); // Update the selected email
-    setisShown(false); // Hide the dropdown
+    setSelectedEmail(email);
+    setisShown(false);
   };
 
   const toggleDropdown = () => {
     setisShown((prev) => !prev);
   };
+
+  let UserNameCapitalized = (name) => {
+    let trimmedName = name.trim();
+    let username = trimmedName.split(/\s+/);
+    if (username.length > 1) {
+        return (
+            username[0].slice(0, 1).toUpperCase() +
+            username[1].slice(0, 1).toUpperCase()
+        );
+    } else {
+        return username[0].slice(0, 1).toUpperCase();
+    }
+};
 
   return (
     <ModalBackground>
@@ -541,23 +554,6 @@ const TaskModal = ({ onClose, fetchTasksCards }) => {
           </PriorityGroup>
         </div>
 
-        {/* Assignee Input */}
-        {/* <div style={{ display: "flex", alignItems: "baseline" }}>
-          <Label style={{ width: "120px" }}>Assign to</Label>
-          <SelectDropdown
-            value={assignee}
-            onChange={(e) => setAssignee(e.target.value)}
-          >
-            <option value="" disabled>
-              Select an assignee
-            </option>
-            {users.map((user) => (
-              <option key={user._id} value={user.email}>
-                {user.email}
-              </option>
-            ))}
-          </SelectDropdown>
-        </div> */}
         <Container>
           <Label style={{ width: "120px" }}>Assign to</Label>
           <AssignInputContainer onClick={toggleDropdown}>
@@ -578,7 +574,7 @@ const TaskModal = ({ onClose, fetchTasksCards }) => {
                     key={user._id}
                     onClick={() => handleUserSelect(user.email)}
                   >
-                    <ButtonLogo>AK</ButtonLogo>
+                    <ButtonLogo>{UserNameCapitalized(user.name)}</ButtonLogo>
                     <AssigneeText>{user.email}</AssigneeText>
                     <AssignButton>Assign</AssignButton>
                   </UserOption>
