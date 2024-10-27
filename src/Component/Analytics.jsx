@@ -50,7 +50,7 @@ const Analytics = () => {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem("token");
-        const url =`${import.meta.env.VITE_API_KEY}/tasks/analytics`;
+        const url =`${import.meta.env.VITE_API_KEY}/auth/tasks/analytics`;
         // const url = `http://localhost:3000/auth/tasks/analytics`;
         const response = await fetch(url, {
           method: "GET",
