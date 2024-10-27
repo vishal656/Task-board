@@ -1,7 +1,9 @@
-import React from "react";
+import React,{useEffect} from "react";
 import styled from "styled-components";
 import { handleSuccess,handleError } from "../utils";
 import { useNavigate } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -62,7 +64,6 @@ const CreateButton = styled.button`
 `;
 
 const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
-
   const handleDelete = async () => {
     try {
       const url = `${import.meta.env.VITE_API_KEY}/auth/tasks/${modalData._id}`;
@@ -76,12 +77,13 @@ const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
       });
 
       const result = await response.json();
-      if (result.success) {
-        handleSuccess("Task deleted successfully");
+      const { success, message,error} = result;
+      if (success) {
+        handleSuccess(message);
         fetchTasksCards();
         onClose();
       } else {
-        console.error(result.error);
+        console.error(error);
       }
     } catch (error) {
       handleError("Failed to delete task:", error);
@@ -89,6 +91,7 @@ const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
   };
 
   return (
+    <>
     <Wrapper>
       <WrapperInside>
         <p
@@ -115,6 +118,8 @@ const DeleteTaskCard = ({ onClose, fetchTasksCards, modalData }) => {
         </CreateButton>
       </WrapperInside>
     </Wrapper>
+    <ToastContainer />
+    </>
   );
 };
 

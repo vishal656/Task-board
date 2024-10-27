@@ -1,7 +1,8 @@
-import React ,{useState}from "react";
+import {useState,useEffect}from "react";
 import styled from "styled-components";
-import { handleSuccess } from "../utils";
+import { handleSuccess,handleError } from "../utils";
 import { useNavigate } from "react-router-dom";
+import { FaAngleDown } from "react-icons/fa";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -61,24 +62,155 @@ const CreateButton = styled.button`
   }
 `;
 
-const InputWrapper = styled.div`
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
   position: relative;
-  width: 100%;
-  margin-bottom: 20px;
 `;
 
-const Input = styled.input`
-  width: 100%;
-  padding: 10px 10px;
+const AssignInputContainer = styled.div`
+  display: flex;
+  align-items: center;
   border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
+  border-radius: 4px;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
 `;
 
-const AddPeople = ({onClose}) => {
-  const navigate = useNavigate();
-  const [email,setEmail] =useState("");
+const Label = styled.label`
+  font-weight: 500;
+  margin-top: 15px;
+  display: block;
+  font-size: 14px;
+  font-family: "Inter";
+  padding-bottom: 10px;
+`;
 
+const InputField = styled.input`
+  border: none;
+  outline: none;
+  width: 100%;
+  padding-right: 24px;
+`;
+const DropdownIcon = styled(FaAngleDown)`
+  position: absolute;
+  right: 10px;
+  color: #888;
+`;
+const OptionsContainer = styled.div`
+  position: absolute;
+  top: 79%;
+  right: 0%;
+  width: 79.8%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  z-index: 10;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+`;
+const UserOption = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
+const ButtonLogo = styled.button`
+  background-color: #ffebeb;
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+`;
+
+const AssigneeText = styled.p`
+  margin: 0 10px;
+  flex-grow: 1;
+`;
+
+const AssignButton = styled.button`
+  background-color: #e2e2e2;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  width: 154px;
+  height: 31px;
+`;
+const AddPeople = ({onClose}) => {
+  const [selectedEmail, setSelectedEmail] = useState("");
+  const [isShown, setisShown] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  const toggleDropdown = () => {
+    setisShown((prev) => !prev);
+  };
+
+  const handleUserSelect = (email) => {
+    setSelectedEmail(email);
+    setisShown(false);
+  };
+
+  let UserNameCapitalized = (name) => {
+    let trimmedName = name.trim();
+    let username = trimmedName.split(/\s+/);
+    if (username.length > 1) {
+      return (
+        username[0].slice(0, 1).toUpperCase() +
+        username[1].slice(0, 1).toUpperCase()
+      );
+    } else {
+      return username[0].slice(0, 1).toUpperCase();
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const url = `${import.meta.env.VITE_API_KEY}/auth/getAllUsers`;
+      // const url = `http://localhost:3000/auth/getAllUsers`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const { success, users, message, error } = result;
+
+      if (success) {
+        setUsers(users);
+      } else if (error) {
+        handleError(error.details ? error.details[0].message : error.message);
+      } else {
+        handleError(message);
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <Wrapper>
       <WrapperInside>
@@ -92,19 +224,40 @@ const AddPeople = ({onClose}) => {
           >
             Add people to the board
           </p>
-          <InputWrapper>
-            <Input
+          <Container>
+          <Label style={{ width: "120px" }}>Assign to</Label>
+          <AssignInputContainer onClick={toggleDropdown}>
+            <InputField
               type="text"
-              name="email"
-              placeholder="Email"
-              autoFocus
-              onChange={(e)=>setEmail(e.target.value)}
-              value={email}
+              name="assign"
+              value={selectedEmail}
+              readOnly
             />
-          </InputWrapper>
-          <div style={{display:"flex",gap:"20px",paddingTop:"15px"}}>
+            <DropdownIcon />
+          </AssignInputContainer>
+
+          {isShown && (
+            <OptionsContainer>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <UserOption
+                    key={user._id}
+                    onClick={() => handleUserSelect(user.email)}
+                  >
+                    <ButtonLogo>{UserNameCapitalized(user.name)}</ButtonLogo>
+                    <AssigneeText>{user.email}</AssigneeText>
+                    <AssignButton>Assign</AssignButton>
+                  </UserOption>
+                ))
+              ) : (
+                <div>No users available</div>
+              )}
+            </OptionsContainer>
+          )}
+        </Container>
+          <div style={{display:"flex",gap:"20px",paddingTop:"25px"}}>
           <CreateButton onClick={()=>onClose()} style={{backgroundColor:"white",border:"1px solid red",color:"red"}}>Cancel</CreateButton>
-          <CreateButton>Add Email</CreateButton>
+          <CreateButton onClick={()=>alert("Only This Api is Pending")}>Add Email</CreateButton>
           </div>
       </WrapperInside>
     </Wrapper>

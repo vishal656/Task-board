@@ -5,6 +5,7 @@ import Login from "./Component/Login";
 import {useState}  from "react";
 import Home from "./Component/Home";
 import RefreshHandler from './Component/RefreshHandler';
+import SharePage from './Component/SharePage';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const PrivateRoute = ({element})=>{
@@ -20,6 +21,7 @@ function App() {
     <Route path="/signup" element={<Signup />} />
     <Route path="/login" element={<Login />} />
     <Route path="/home" element={<PrivateRoute element={<Home />}/>} />
+    <Route path="/share-page" element={<SharePage />} />
     <Route path="*" element={<div>Not Found</div>} />
     </Routes>
     </BrowserRouter>

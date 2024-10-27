@@ -76,6 +76,7 @@ const ContentContainer = styled.div`
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 `;
 
 const Header = styled.div`

@@ -2,6 +2,7 @@ import React, { useState, useEffect,useRef } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import EditTaskCard from "./EditTaskCard";
+import { useNavigate  } from "react-router-dom";
 import {
   faEllipsisH,
   faChevronDown,
@@ -150,6 +151,25 @@ const ColorItem = styled.div`
   border-radius: 50%;
 `;
 
+const Toast = styled.div`
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #ddffe8;
+  border: 1px solid #48C1B5
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  opacity: ${(props) => (props.visible ? 1 : 0)};
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  width:180px;
+  height:50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const TaskCard = ({
   task,
   fetchTasksCards,
@@ -159,12 +179,14 @@ const TaskCard = ({
   setTasks
 }) => {
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   const [checklist, setChecklist] = useState(task.checklist);
   const [isChecklistVisible, setIsChecklistVisible] = useState(true);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isEditVisible, setIsEditVisible] = useState(false);
   const [isDeleteVisible, setIsDeleteVisible] = useState(false);
   const [modalData, setModalData] = useState();
+  const [showToast, setShowToast] = useState(false);
   const toggleCheckbox = (index) => {
     const updatedChecklist = checklist.map((item, i) =>
       i === index ? { ...item, completed: !item.completed } : item
@@ -220,6 +242,24 @@ const TaskCard = ({
   const handleStatusChange = (taskId, newStatus) => {
     updateTaskStatus(taskId, newStatus);
   };
+
+  const handleShare = () => {
+    const shareLink = `${window.location.origin}/share-page`;
+    if (task) {
+      setIsPopupVisible(false);
+      localStorage.setItem("sharedTask", JSON.stringify({ task }));
+          setShowToast(true);
+      navigator.clipboard.writeText(shareLink).then(() => {
+        setTimeout(() => {
+                 setShowToast(false);
+          }, 5000);
+       // navigate("/share-page");
+      });
+    } else {
+      console.error("No task to share.");
+    }
+  };
+
   return (
     <CardContainer>
       {isEditVisible ? (
@@ -256,7 +296,7 @@ const TaskCard = ({
       </TaskHeader>
 
       <TaskTitle>{task.title}</TaskTitle>
-
+      {showToast && <Toast visible={showToast}>Link copied</Toast>}
       <PopupMenu visible={isPopupVisible} ref={dropdownRef}>
         <MenuItem
           onClick={() => {
@@ -267,7 +307,7 @@ const TaskCard = ({
         >
           Edit
         </MenuItem>
-        <MenuItem>Share</MenuItem>
+        <MenuItem onClick={handleShare}>Share</MenuItem>
         <MenuItem
           onClick={() => {
             setModalData(task);
