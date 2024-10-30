@@ -153,8 +153,8 @@ const ColorItem = styled.div`
 
 const Toast = styled.div`
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 25px;
+  right: 25px;
   background-color: #ddffe8;
   border: 1px solid #48C1B5
   color: white;

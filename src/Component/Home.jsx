@@ -229,7 +229,7 @@ const Home = () => {
       return (
         <>
         {
-          addPeoplePopup ?<AddBoard onClose={()=>setPeoplePopup(false)}/> : null
+          addPeoplePopup ?<AddBoard onClose={()=>setPeoplePopup(false)} setRefresh={setRefresh}/> : null
         }
           <Header>
             <div>Welcome! {loggedInUser}</div>

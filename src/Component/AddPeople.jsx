@@ -1,8 +1,9 @@
-import {useState,useEffect}from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { handleSuccess,handleError } from "../utils";
+import { handleSuccess, handleError } from "../utils";
 import { useNavigate } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
+import { v4 as uuidv4 } from "uuid";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -25,7 +26,7 @@ const WrapperInside = styled.div`
   padding: 0rem 0rem;
   border-radius: 10px;
   height: 200px;
-  padding:15px;
+  padding: 15px;
 
   @media (max-width: 768px) {
     width: 90%;
@@ -149,11 +150,20 @@ const AssignButton = styled.button`
   width: 154px;
   height: 31px;
 `;
-const AddPeople = ({onClose}) => {
+
+const SuccessMessage = styled.div`
+  margin-top: 15px;
+  color: black;
+  font-weight: 600;
+  text-align: center;
+  font-size: 20px;
+  font-family: 'Noto Sans';
+`;
+const AddPeople = ({ onClose, setRefresh }) => {
   const [selectedEmail, setSelectedEmail] = useState("");
   const [isShown, setisShown] = useState(false);
   const [users, setUsers] = useState([]);
-
+  const [successMessage, setSuccessMessage] = useState("");
   const toggleDropdown = () => {
     setisShown((prev) => !prev);
   };
@@ -211,54 +221,113 @@ const AddPeople = ({onClose}) => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const assignDashboardTasks = async (assigneeEmail) => {
+    try {
+      const url = `${import.meta.env.VITE_API_KEY}/auth/assign-tasks`;
+      // const url = `http://localhost:3000/auth/assign-tasks`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token")
+        },
+        body: JSON.stringify({ assigneeEmail })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        //  handleSuccess(result.message);
+        setRefresh(uuidv4());
+        setSuccessMessage(result.message);
+        // fetchTasksCards();
+      } else {
+        handleError(result.message || "Failed to assign tasks");
+      }
+    } catch (error) {
+      handleError("Error assigning tasks:", error);
+    }
+  };
+
   return (
     <Wrapper>
       <WrapperInside>
-      <p
+        {successMessage ? (
+          <div
             style={{
-              fontSize: "20px",
-              fontWeight: "600",
-              color: "#000",
-              fontFamily: "Noto Sans"
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "4rem",
+              gap:"20px"
             }}
           >
-            Add people to the board
-          </p>
-          <Container>
-          <Label style={{ width: "120px" }}>Assign to</Label>
-          <AssignInputContainer onClick={toggleDropdown}>
-            <InputField
-              type="text"
-              name="assign"
-              value={selectedEmail}
-              readOnly
-            />
-            <DropdownIcon />
-          </AssignInputContainer>
-
-          {isShown && (
-            <OptionsContainer>
-              {users.length > 0 ? (
-                users.map((user) => (
-                  <UserOption
-                    key={user._id}
-                    onClick={() => handleUserSelect(user.email)}
-                  >
-                    <ButtonLogo>{UserNameCapitalized(user.name)}</ButtonLogo>
-                    <AssigneeText>{user.email}</AssigneeText>
-                    <AssignButton>Assign</AssignButton>
-                  </UserOption>
-                ))
-              ) : (
-                <div>No users available</div>
-              )}
-            </OptionsContainer>
-          )}
-        </Container>
-          <div style={{display:"flex",gap:"20px",paddingTop:"25px"}}>
-          <CreateButton onClick={()=>onClose()} style={{backgroundColor:"white",border:"1px solid red",color:"red"}}>Cancel</CreateButton>
-          <CreateButton onClick={()=>alert("Only This Api is Pending")}>Add Email</CreateButton>
+            <SuccessMessage>{successMessage}</SuccessMessage>
+            <CreateButton onClick={() => onClose()}>Okay got it!</CreateButton>
           </div>
+        ) : (
+          <>
+            <p
+              style={{
+                fontSize: "20px",
+                fontWeight: "600",
+                color: "#000",
+                fontFamily: "Noto Sans"
+              }}
+            >
+              Add people to the board
+            </p>
+            <Container>
+              <Label style={{ width: "120px" }}>Assign to</Label>
+              <AssignInputContainer onClick={toggleDropdown}>
+                <InputField
+                  type="text"
+                  name="assign"
+                  value={selectedEmail}
+                  readOnly
+                />
+                <DropdownIcon />
+              </AssignInputContainer>
+
+              {isShown && (
+                <OptionsContainer>
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <UserOption
+                        key={user._id}
+                        onClick={() => handleUserSelect(user.email)}
+                      >
+                        <ButtonLogo>
+                          {UserNameCapitalized(user.name)}
+                        </ButtonLogo>
+                        <AssigneeText>{user.email}</AssigneeText>
+                        <AssignButton>Assign</AssignButton>
+                      </UserOption>
+                    ))
+                  ) : (
+                    <div>No users available</div>
+                  )}
+                </OptionsContainer>
+              )}
+            </Container>
+            <div style={{ display: "flex", gap: "20px", paddingTop: "25px" }}>
+              <CreateButton
+                onClick={() => onClose()}
+                style={{
+                  backgroundColor: "white",
+                  border: "1px solid red",
+                  color: "red"
+                }}
+              >
+                Cancel
+              </CreateButton>
+              <CreateButton onClick={() => assignDashboardTasks(selectedEmail)}>
+                Add Email
+              </CreateButton>
+            </div>
+          </>
+        )}
       </WrapperInside>
     </Wrapper>
   );
