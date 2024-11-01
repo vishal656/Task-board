@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import styled from "styled-components";
 import { handleError, handleSuccess } from "../utils";
 import DeleteIcon from "../assets/image/Delete.png";
@@ -300,6 +300,7 @@ const EditTaskCard = ({
   setRefresh,
   setTasks
 }) => {
+  const dropdownRef = useRef(null);
   const [title, setTitle] = useState(modalData.title || "");
   const [priority, setPriority] = useState(
     modalData.priority || "MODERATE_PRIORITY"
@@ -504,6 +505,20 @@ const EditTaskCard = ({
     }
   };
 
+  const closeDropdown = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setisShown(false);
+    }
+  };
+
+
+  useEffect(() => {
+    document.addEventListener('mousedown', closeDropdown);
+    return () => {
+      document.removeEventListener('mousedown', closeDropdown);
+    };
+  }, []);
+
   return (
     <ModalBackground>
       <ModalContainer>
@@ -592,7 +607,7 @@ const EditTaskCard = ({
           </AssignInputContainer>
 
           {isShown && (
-            <OptionsContainer>
+            <OptionsContainer  ref={dropdownRef}>
               {users.length > 0 ? (
                 users.map((user) => (
                   <UserOption

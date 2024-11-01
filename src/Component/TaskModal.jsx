@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import styled from "styled-components";
 import { handleError, handleSuccess } from "../utils";
 import DeleteIcon from "../assets/image/Delete.png";
@@ -293,6 +293,7 @@ const AssignButton = styled.button`
 `;
 
 const TaskModal = ({ onClose, fetchTasksCards }) => {
+  const dropdownRef = useRef(null);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("MODERATE_PRIORITY");
   const [assignee, setAssignee] = useState("");
@@ -478,6 +479,20 @@ const TaskModal = ({ onClose, fetchTasksCards }) => {
     }
 };
 
+const closeDropdown = (e) => {
+  if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    setisShown(false);
+  }
+};
+
+
+useEffect(() => {
+  document.addEventListener('mousedown', closeDropdown);
+  return () => {
+    document.removeEventListener('mousedown', closeDropdown);
+  };
+}, []);
+
   return (
     <ModalBackground>
       <ModalContainer>
@@ -567,7 +582,7 @@ const TaskModal = ({ onClose, fetchTasksCards }) => {
           </AssignInputContainer>
 
           {isShown && (
-            <OptionsContainer>
+            <OptionsContainer  ref={dropdownRef}>
               {users.length > 0 ? (
                 users.map((user) => (
                   <UserOption
