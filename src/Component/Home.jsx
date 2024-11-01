@@ -247,7 +247,7 @@ const Home = () => {
             <div>
               <p>
                 {" "}
-                <select onChange={handleFilterChange} style={{border:"none",outline:"none"}}>
+                <select onChange={handleFilterChange} value={filter} style={{border:"none",outline:"none"}}>
                   <option value="today">Today</option>
                   <option value="this week">This Week</option>
                   <option value="this month">This Month</option>
